@@ -190,6 +190,11 @@ export function NovaPecaForm() {
         Anunciar com exclusividade (não pode estar à venda em outro canal)
       </label>
 
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="venda_assistida" />
+        Quero delegar a negociação à curadoria (venda assistida — taxa de 60%)
+      </label>
+
       <div className="rounded border border-dashed border-neutral-300 p-3 text-sm">
         <button
           type="button"

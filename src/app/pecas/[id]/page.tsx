@@ -15,6 +15,17 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
   const ehDona = usuario?.id === peca.dono_id;
   const fotos = peca.fotos_tratadas.length ? peca.fotos_tratadas : peca.fotos_originais;
 
+  const { data: avaliacoesDona } = await supabase
+    .from("avaliacoes")
+    .select("nota")
+    .eq("avaliado_id", peca.dono_id)
+    .in("tipo_alvo", ["vendedora", "locadora"]);
+
+  const mediaDona =
+    avaliacoesDona && avaliacoesDona.length > 0
+      ? avaliacoesDona.reduce((soma, a) => soma + a.nota, 0) / avaliacoesDona.length
+      : null;
+
   return (
     <main className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-8 sm:grid-cols-2">
       <div className="flex flex-col gap-2">
@@ -52,6 +63,13 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
         <p className="text-2xl font-semibold">
           {peca.preco_anunciado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
         </p>
+        {mediaDona !== null && (
+          <p className="text-xs text-neutral-500">
+            ★ {mediaDona.toFixed(1)} ({avaliacoesDona!.length} avaliação
+            {avaliacoesDona!.length > 1 ? "ões" : ""} de{" "}
+            {peca.tipo === "aluguel" ? "locadora" : "vendedora"})
+          </p>
+        )}
 
         <dl className="grid grid-cols-2 gap-2 text-sm text-neutral-600">
           <div>
@@ -81,7 +99,12 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
             Esta é uma das suas peças — acompanhe as reservas no seu painel.
           </p>
         ) : usuario ? (
-          <ReservarForm pecaId={peca.id} precoAnunciado={peca.preco_anunciado} criadoEm={peca.criado_em} />
+          <ReservarForm
+            pecaId={peca.id}
+            precoAnunciado={peca.preco_anunciado}
+            criadoEm={peca.criado_em}
+            tipo={peca.tipo}
+          />
         ) : (
           <p className="text-sm text-neutral-600">
             <Link href="/login" className="underline">

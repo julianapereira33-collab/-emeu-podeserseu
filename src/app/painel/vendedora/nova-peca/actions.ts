@@ -21,6 +21,7 @@ export async function cadastrarPeca(
   const tipo = String(formData.get("tipo") ?? "").trim();
   const precoRaw = String(formData.get("preco_anunciado") ?? "").trim();
   const exclusividade = formData.get("exclusividade") === "on";
+  const vendaAssistida = formData.get("venda_assistida") === "on";
   const fotosOriginais = formData.getAll("fotos_originais").map(String).filter(Boolean);
   const fotosTratadas = formData.getAll("fotos_tratadas").map(String).filter(Boolean);
 
@@ -44,6 +45,7 @@ export async function cadastrarPeca(
     tipo,
     preco_anunciado: preco,
     exclusividade,
+    venda_assistida: vendaAssistida,
     fotos_originais: fotosOriginais,
     fotos_tratadas: fotosTratadas,
   });

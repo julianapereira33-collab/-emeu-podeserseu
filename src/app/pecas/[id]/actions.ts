@@ -23,11 +23,16 @@ export async function reservar(
     return { erro: "Informe um valor de proposta válido." };
   }
 
+  if (formData.get("termos_aceitos") !== "on") {
+    return { erro: "É preciso aceitar os termos de uso para reservar." };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.from("reservas").insert({
     peca_id: pecaId,
     compradora_id: usuario.id,
     valor_proposta: valorProposta,
+    termos_aceitos: true,
   });
 
   if (error) {

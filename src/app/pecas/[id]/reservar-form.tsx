@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { reservar, type ReservarState } from "./actions";
 import { propostaMinima } from "@/lib/domain/regras";
 
@@ -10,10 +11,12 @@ export function ReservarForm({
   pecaId,
   precoAnunciado,
   criadoEm,
+  tipo,
 }: {
   pecaId: string;
   precoAnunciado: number;
   criadoEm: string;
+  tipo: string;
 }) {
   const action = reservar.bind(null, pecaId);
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -46,6 +49,17 @@ export function ReservarForm({
         Proposta mínima aceita hoje: R$ {minimo.toFixed(2)} (piso cresce quanto mais tempo a peça
         fica em vitrine).
       </p>
+
+      <label className="flex items-start gap-2 text-xs text-neutral-600">
+        <input type="checkbox" name="termos_aceitos" required className="mt-0.5" />
+        <span>
+          Li e aceito os{" "}
+          <Link href={`/termos?tipo=${tipo}`} target="_blank" className="underline">
+            termos de uso para {tipo === "aluguel" ? "aluguel" : "venda"}
+          </Link>
+          , incluindo que a taxa não é reembolsável após o pagamento.
+        </span>
+      </label>
 
       {state.erro && <p className="text-sm text-red-600">{state.erro}</p>}
 

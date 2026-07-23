@@ -12,6 +12,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      atendimentos_assistidos: {
+        Row: {
+          criado_em: string
+          id: string
+          observacoes: string | null
+          peca_id: string | null
+          status: string
+          status_pagamento: string
+          tipo: string
+          usuario_id: string
+          valor: number | null
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          observacoes?: string | null
+          peca_id?: string | null
+          status?: string
+          status_pagamento?: string
+          tipo: string
+          usuario_id: string
+          valor?: number | null
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          observacoes?: string | null
+          peca_id?: string | null
+          status?: string
+          status_pagamento?: string
+          tipo?: string
+          usuario_id?: string
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimentos_assistidos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimentos_assistidos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avaliacoes: {
         Row: {
           avaliado_id: string | null
@@ -208,6 +259,7 @@ export type Database = {
           tamanho: string
           tecido: string | null
           tipo: string
+          venda_assistida: boolean
         }
         Insert: {
           cor: string
@@ -225,6 +277,7 @@ export type Database = {
           tamanho: string
           tecido?: string | null
           tipo: string
+          venda_assistida?: boolean
         }
         Update: {
           cor?: string
@@ -242,6 +295,7 @@ export type Database = {
           tamanho?: string
           tecido?: string | null
           tipo?: string
+          venda_assistida?: boolean
         }
         Relationships: [
           {
@@ -261,6 +315,7 @@ export type Database = {
           peca_id: string
           prazo_confirmacao: string
           status: string
+          termos_aceitos: boolean
           valor_aceito: number | null
           valor_proposta: number | null
         }
@@ -271,6 +326,7 @@ export type Database = {
           peca_id: string
           prazo_confirmacao?: string
           status?: string
+          termos_aceitos?: boolean
           valor_aceito?: number | null
           valor_proposta?: number | null
         }
@@ -281,6 +337,7 @@ export type Database = {
           peca_id?: string
           prazo_confirmacao?: string
           status?: string
+          termos_aceitos?: boolean
           valor_aceito?: number | null
           valor_proposta?: number | null
         }
@@ -394,6 +451,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirmar_pagamento_atendimento: {
+        Args: { p_atendimento_id: string }
+        Returns: {
+          criado_em: string
+          id: string
+          observacoes: string | null
+          peca_id: string | null
+          status: string
+          status_pagamento: string
+          tipo: string
+          usuario_id: string
+          valor: number | null
+        }
+      }
+      registrar_denuncia: {
+        Args: { p_evidencia?: string; p_motivo: string; p_vendedora_id: string }
+        Returns: {
+          avisos: number
+          banido_em: string | null
+          criado_em: string
+          evidencia: string | null
+          id: string
+          motivo: string
+          vendedora_id: string
+        }
+      }
       confirmar_pagamento_taxa: {
         Args: { p_transacao_id: string }
         Returns: {

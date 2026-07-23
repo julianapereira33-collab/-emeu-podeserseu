@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { STATUS_PECA_LABEL, STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
 import { ReservaAcoes } from "./reserva-actions";
+import { AtendimentoSection } from "./atendimento-section";
 
 export default async function PainelVendedoraPage() {
   const usuario = await getCurrentUsuario();
@@ -20,20 +21,36 @@ export default async function PainelVendedoraPage() {
     .eq("pecas.dono_id", usuario!.id)
     .order("criado_em", { ascending: false });
 
+  const { data: atendimentos } = await supabase
+    .from("atendimentos_assistidos")
+    .select("*")
+    .eq("usuario_id", usuario!.id)
+    .order("criado_em", { ascending: false });
+
   const pendentes = reservas?.filter((r) => r.status === "aguardando_confirmacao") ?? [];
   const outras = reservas?.filter((r) => r.status !== "aguardando_confirmacao") ?? [];
+  const banida = Boolean(usuario?.banido_em);
 
   return (
     <div className="flex flex-col gap-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Painel da vendedora</h1>
-        <Link
-          href="/painel/vendedora/nova-peca"
-          className="rounded bg-neutral-900 px-4 py-2 text-sm text-white"
-        >
-          Cadastrar peça
-        </Link>
+        {!banida && (
+          <Link
+            href="/painel/vendedora/nova-peca"
+            className="rounded bg-neutral-900 px-4 py-2 text-sm text-white"
+          >
+            Cadastrar peça
+          </Link>
+        )}
       </div>
+
+      {banida && (
+        <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+          Sua conta foi banida por violação de exclusividade e não pode cadastrar novas peças.
+          Fale com a curadoria se acredita que isso é um engano.
+        </p>
+      )}
 
       <section>
         <h2 className="mb-3 text-lg font-medium">
@@ -94,6 +111,7 @@ export default async function PainelVendedoraPage() {
                 <p className="font-medium">{p.descricao}</p>
                 <p className="text-neutral-500">
                   Tam. {p.tamanho} · {p.cor} · R$ {p.preco_anunciado.toFixed(2)}
+                  {p.venda_assistida ? " · Venda assistida" : ""}
                 </p>
                 {p.status === "reprovado" && p.motivo_reprovacao && (
                   <p className="text-xs text-red-600">Motivo: {p.motivo_reprovacao}</p>
@@ -109,6 +127,8 @@ export default async function PainelVendedoraPage() {
           )}
         </ul>
       </section>
+
+      <AtendimentoSection atendimentos={atendimentos ?? []} />
     </div>
   );
 }

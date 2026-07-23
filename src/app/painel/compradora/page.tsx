@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
 import { PagarBotao } from "./pagar-botao";
+import { AvaliarForm } from "./avaliar-form";
 
 export default async function PainelCompradoraPage() {
   const usuario = await getCurrentUsuario();
@@ -12,6 +13,14 @@ export default async function PainelCompradoraPage() {
     .select("*, pecas(*, usuarios(nome, whatsapp)), transacoes(*)")
     .eq("compradora_id", usuario!.id)
     .order("criado_em", { ascending: false });
+
+  const { data: avaliacoesFeitas } = await supabase
+    .from("avaliacoes")
+    .select("transacao_id, tipo_alvo")
+    .eq("avaliador_id", usuario!.id);
+
+  const jaAvaliou = (transacaoId: string, tipoAlvo: string) =>
+    avaliacoesFeitas?.some((a) => a.transacao_id === transacaoId && a.tipo_alvo === tipoAlvo) ?? false;
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,11 +34,13 @@ export default async function PainelCompradoraPage() {
       <ul className="flex flex-col gap-3">
         {reservas?.map((r) => {
           const transacao = r.transacoes;
-          const vendedora = r.pecas?.usuarios;
+          const peca = r.pecas;
+          const vendedora = peca?.usuarios;
+          const ehAluguel = peca?.tipo === "aluguel";
 
           return (
             <li key={r.id} className="rounded border border-neutral-200 p-4 text-sm">
-              <p className="font-medium">{r.pecas?.descricao}</p>
+              <p className="font-medium">{peca?.descricao}</p>
               <p className="text-neutral-500">{STATUS_RESERVA_LABEL[r.status] ?? r.status}</p>
 
               {r.status === "confirmada" && transacao && transacao.status_pagamento === "pendente" && (
@@ -39,8 +50,40 @@ export default async function PainelCompradoraPage() {
               )}
 
               {r.status === "contato_liberado" && vendedora && (
-                <div className="mt-2 rounded bg-emerald-50 px-3 py-2 text-emerald-700">
-                  Contato liberado: {vendedora.nome} — WhatsApp {vendedora.whatsapp}
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="rounded bg-emerald-50 px-3 py-2 text-emerald-700">
+                    Contato liberado: {vendedora.nome} — WhatsApp {vendedora.whatsapp}
+                  </div>
+
+                  {transacao && (
+                    <div className="flex flex-col gap-2 rounded border border-dashed border-neutral-300 p-3">
+                      <p className="text-xs font-medium text-neutral-600">Avaliar esta transação</p>
+                      {!jaAvaliou(transacao.id, "peca") && (
+                        <AvaliarForm
+                          transacaoId={transacao.id}
+                          tipoAlvo="peca"
+                          avaliadoId={null}
+                          label="Peça"
+                        />
+                      )}
+                      {!ehAluguel && !jaAvaliou(transacao.id, "vendedora") && (
+                        <AvaliarForm
+                          transacaoId={transacao.id}
+                          tipoAlvo="vendedora"
+                          avaliadoId={peca?.dono_id ?? null}
+                          label="Vendedora"
+                        />
+                      )}
+                      {ehAluguel && !jaAvaliou(transacao.id, "locadora") && (
+                        <AvaliarForm
+                          transacaoId={transacao.id}
+                          tipoAlvo="locadora"
+                          avaliadoId={peca?.dono_id ?? null}
+                          label="Locadora"
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </li>
