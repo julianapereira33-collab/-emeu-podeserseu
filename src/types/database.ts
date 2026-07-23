@@ -1,0 +1,431 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
+  public: {
+    Tables: {
+      avaliacoes: {
+        Row: {
+          avaliado_id: string | null
+          avaliador_id: string
+          comentario: string | null
+          criado_em: string
+          id: string
+          nota: number
+          tipo_alvo: string
+          transacao_id: string
+        }
+        Insert: {
+          avaliado_id?: string | null
+          avaliador_id: string
+          comentario?: string | null
+          criado_em?: string
+          id?: string
+          nota: number
+          tipo_alvo: string
+          transacao_id: string
+        }
+        Update: {
+          avaliado_id?: string | null
+          avaliador_id?: string
+          comentario?: string | null
+          criado_em?: string
+          id?: string
+          nota?: number
+          tipo_alvo?: string
+          transacao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_avaliado_id_fkey"
+            columns: ["avaliado_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_avaliador_id_fkey"
+            columns: ["avaliador_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_transacao_id_fkey"
+            columns: ["transacao_id"]
+            isOneToOne: false
+            referencedRelation: "transacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cashback: {
+        Row: {
+          criado_em: string
+          id: string
+          origem: string
+          usado: boolean
+          usuario_id: string
+          valido_ate: string
+          valor: number
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          origem: string
+          usado?: boolean
+          usuario_id: string
+          valido_ate: string
+          valor: number
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          origem?: string
+          usado?: boolean
+          usuario_id?: string
+          valido_ate?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashback_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comissoes: {
+        Row: {
+          criado_em: string
+          id: string
+          paga: boolean
+          parceira_id: string
+          percentual: number
+          tipo: string
+          transacao_id: string
+          valor: number
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          paga?: boolean
+          parceira_id: string
+          percentual: number
+          tipo: string
+          transacao_id: string
+          valor: number
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          paga?: boolean
+          parceira_id?: string
+          percentual?: number
+          tipo?: string
+          transacao_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comissoes_parceira_id_fkey"
+            columns: ["parceira_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissoes_transacao_id_fkey"
+            columns: ["transacao_id"]
+            isOneToOne: false
+            referencedRelation: "transacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      denuncias_banimento: {
+        Row: {
+          avisos: number
+          banido_em: string | null
+          criado_em: string
+          evidencia: string | null
+          id: string
+          motivo: string
+          vendedora_id: string
+        }
+        Insert: {
+          avisos?: number
+          banido_em?: string | null
+          criado_em?: string
+          evidencia?: string | null
+          id?: string
+          motivo: string
+          vendedora_id: string
+        }
+        Update: {
+          avisos?: number
+          banido_em?: string | null
+          criado_em?: string
+          evidencia?: string | null
+          id?: string
+          motivo?: string
+          vendedora_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "denuncias_banimento_vendedora_id_fkey"
+            columns: ["vendedora_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pecas: {
+        Row: {
+          cor: string
+          criado_em: string
+          descricao: string
+          dono_id: string
+          estado: string
+          exclusividade: boolean
+          fotos_originais: string[]
+          fotos_tratadas: string[]
+          id: string
+          motivo_reprovacao: string | null
+          preco_anunciado: number
+          status: string
+          tamanho: string
+          tecido: string | null
+          tipo: string
+        }
+        Insert: {
+          cor: string
+          criado_em?: string
+          descricao: string
+          dono_id: string
+          estado: string
+          exclusividade?: boolean
+          fotos_originais?: string[]
+          fotos_tratadas?: string[]
+          id?: string
+          motivo_reprovacao?: string | null
+          preco_anunciado: number
+          status?: string
+          tamanho: string
+          tecido?: string | null
+          tipo: string
+        }
+        Update: {
+          cor?: string
+          criado_em?: string
+          descricao?: string
+          dono_id?: string
+          estado?: string
+          exclusividade?: boolean
+          fotos_originais?: string[]
+          fotos_tratadas?: string[]
+          id?: string
+          motivo_reprovacao?: string | null
+          preco_anunciado?: number
+          status?: string
+          tamanho?: string
+          tecido?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pecas_dono_id_fkey"
+            columns: ["dono_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservas: {
+        Row: {
+          compradora_id: string
+          criado_em: string
+          id: string
+          peca_id: string
+          prazo_confirmacao: string
+          status: string
+          valor_aceito: number | null
+          valor_proposta: number | null
+        }
+        Insert: {
+          compradora_id: string
+          criado_em?: string
+          id?: string
+          peca_id: string
+          prazo_confirmacao?: string
+          status?: string
+          valor_aceito?: number | null
+          valor_proposta?: number | null
+        }
+        Update: {
+          compradora_id?: string
+          criado_em?: string
+          id?: string
+          peca_id?: string
+          prazo_confirmacao?: string
+          status?: string
+          valor_aceito?: number | null
+          valor_proposta?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservas_compradora_id_fkey"
+            columns: ["compradora_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservas_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transacoes: {
+        Row: {
+          contato_liberado_em: string | null
+          criado_em: string
+          id: string
+          percentual_taxa: number
+          reserva_id: string
+          status_pagamento: string
+          valor_base: number
+          valor_taxa: number
+        }
+        Insert: {
+          contato_liberado_em?: string | null
+          criado_em?: string
+          id?: string
+          percentual_taxa: number
+          reserva_id: string
+          status_pagamento?: string
+          valor_base: number
+          valor_taxa: number
+        }
+        Update: {
+          contato_liberado_em?: string | null
+          criado_em?: string
+          id?: string
+          percentual_taxa?: number
+          reserva_id?: string
+          status_pagamento?: string
+          valor_base?: number
+          valor_taxa?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacoes_reserva_id_fkey"
+            columns: ["reserva_id"]
+            isOneToOne: true
+            referencedRelation: "reservas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usuarios: {
+        Row: {
+          auth_user_id: string | null
+          banido_em: string | null
+          cidade: string | null
+          criado_em: string
+          id: string
+          nome: string
+          papel: string[]
+          pix: string | null
+          recrutado_por: string | null
+          whatsapp: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          banido_em?: string | null
+          cidade?: string | null
+          criado_em?: string
+          id?: string
+          nome: string
+          papel?: string[]
+          pix?: string | null
+          recrutado_por?: string | null
+          whatsapp: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          banido_em?: string | null
+          cidade?: string | null
+          criado_em?: string
+          id?: string
+          nome?: string
+          papel?: string[]
+          pix?: string | null
+          recrutado_por?: string | null
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_recrutado_por_fkey"
+            columns: ["recrutado_por"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      confirmar_pagamento_taxa: {
+        Args: { p_transacao_id: string }
+        Returns: {
+          contato_liberado_em: string | null
+          criado_em: string
+          id: string
+          percentual_taxa: number
+          reserva_id: string
+          status_pagamento: string
+          valor_base: number
+          valor_taxa: number
+        }
+      }
+      current_usuario_id: { Args: Record<PropertyKey, never>; Returns: string }
+      expirar_reservas_vencidas: { Args: Record<PropertyKey, never>; Returns: number }
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      piso_percentual: { Args: { p_criado_em: string }; Returns: number }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DefaultSchema = Database["public"]
+
+export type Tables<T extends keyof DefaultSchema["Tables"]> =
+  DefaultSchema["Tables"][T]["Row"]
+export type TablesInsert<T extends keyof DefaultSchema["Tables"]> =
+  DefaultSchema["Tables"][T]["Insert"]
+export type TablesUpdate<T extends keyof DefaultSchema["Tables"]> =
+  DefaultSchema["Tables"][T]["Update"]
