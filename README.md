@@ -3,12 +3,15 @@
 Marketplace de moda circular (venda e aluguel de vestidos de festa em segunda mão). Ver
 `blueprint-e-meu-pode-ser-seu.md` para o desenho completo do produto.
 
-Status: **Fases 1 e 2 implementadas**.
+Status: **Fases 1, 2 e 3 implementadas**.
 - Fase 1: cadastro de peça, curadoria, vitrine pública com filtros, reserva → confirmação de
   disponibilidade (24h) → cobrança da taxa → contato liberado.
 - Fase 2: avaliações (peça/vendedora/locadora), exclusividade com aviso/banimento em 2 ocorrências,
   termos de uso com aceite obrigatório por tipo de transação, venda assistida (taxa 60%) e
   atendimento assistido pago (curadoria / prova presencial).
+- Fase 3: taxa de loja (20%, já valia desde a Fase 1) e cashback — 10% da taxa para a vendedora a
+  cada venda, e cashback fixo para a compradora a cada 5 cliques reais em links de compartilhamento
+  (`/r/[id]`), com validade de 90 dias e uso restrito a abater a taxa de uma futura reserva.
 
 ## Stack
 
@@ -50,6 +53,10 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
    automaticamente em 60% em vez de 30/20%.
 8. Para atendimento assistido: solicite em `/painel/vendedora`, defina o valor em `/painel/admin`,
    pague de volta em `/painel/vendedora`.
+9. Para cashback: em `/painel/compradora`, gere um link de compartilhamento e abra-o (em outra aba
+   ou navegador anônimo) 5 vezes — cada abertura é um "clique real"; a cada 5, R$ 15 de cashback são
+   creditados. Ao pagar a taxa de uma próxima reserva, o saldo pode ser usado para abater o valor.
+   A vendedora recebe cashback automaticamente (10% da taxa) a cada venda paga.
 
 ## O que ainda é simulado / falta para produção
 
@@ -60,8 +67,11 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
   WhatsApp ainda. Isso substitui o timer do n8n descrito no blueprint; o disparo de mensagem via
   Z-API (pedir confirmação à vendedora, lembrete, etc.) ainda não está implementado.
 - **Atendimento assistido**: o pagamento também é simulado, mesmo padrão da taxa.
-- **Fases 3–4**: cashback e programa de parceiros/embaixadoras têm o schema pronto no banco
-  (`cashback`, `comissoes`, `usuarios.recrutado_por`), mas nenhuma tela ainda.
+- **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
+  contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.
+  Suficiente para MVP, mas revisar antes de escalar o programa.
+- **Fase 4**: programa de parceiros/embaixadoras tem o schema pronto no banco (`comissoes`,
+  `usuarios.recrutado_por`), mas nenhuma tela ainda.
 
 ## Learn More
 

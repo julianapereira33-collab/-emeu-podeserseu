@@ -3,6 +3,7 @@ import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
 import { PagarBotao } from "./pagar-botao";
 import { AvaliarForm } from "./avaliar-form";
+import { CashbackSection } from "./cashback-section";
 
 export default async function PainelCompradoraPage() {
   const usuario = await getCurrentUsuario();
@@ -19,6 +20,15 @@ export default async function PainelCompradoraPage() {
     .select("transacao_id, tipo_alvo")
     .eq("avaliador_id", usuario!.id);
 
+  const { data: cashbackDisponivel } = await supabase
+    .from("cashback")
+    .select("valor")
+    .eq("usuario_id", usuario!.id)
+    .eq("usado", false)
+    .gt("valido_ate", new Date().toISOString());
+
+  const saldoCashback = cashbackDisponivel?.reduce((soma, c) => soma + c.valor, 0) ?? 0;
+
   const jaAvaliou = (transacaoId: string, tipoAlvo: string) =>
     avaliacoesFeitas?.some((a) => a.transacao_id === transacaoId && a.tipo_alvo === tipoAlvo) ?? false;
 
@@ -30,6 +40,8 @@ export default async function PainelCompradoraPage() {
         Nesta fase de desenvolvimento, o pagamento da taxa é simulado por um botão — a integração
         real com o gateway Pix (Mercado Pago) entra antes de ir para produção.
       </p>
+
+      <CashbackSection saldo={saldoCashback} />
 
       <ul className="flex flex-col gap-3">
         {reservas?.map((r) => {
@@ -45,7 +57,11 @@ export default async function PainelCompradoraPage() {
 
               {r.status === "confirmada" && transacao && transacao.status_pagamento === "pendente" && (
                 <div className="mt-2">
-                  <PagarBotao transacaoId={transacao.id} valorTaxa={transacao.valor_taxa} />
+                  <PagarBotao
+                    transacaoId={transacao.id}
+                    valorTaxa={transacao.valor_taxa}
+                    saldoCashback={saldoCashback}
+                  />
                 </div>
               )}
 
@@ -53,6 +69,11 @@ export default async function PainelCompradoraPage() {
                 <div className="mt-2 flex flex-col gap-2">
                   <div className="rounded bg-emerald-50 px-3 py-2 text-emerald-700">
                     Contato liberado: {vendedora.nome} — WhatsApp {vendedora.whatsapp}
+                    {transacao && transacao.cashback_utilizado > 0 && (
+                      <span className="block text-xs">
+                        (R$ {transacao.cashback_utilizado.toFixed(2)} abatidos com cashback)
+                      </span>
+                    )}
                   </div>
 
                   {transacao && (

@@ -118,6 +118,68 @@ export type Database = {
           },
         ]
       }
+      cliques_compartilhamento: {
+        Row: {
+          compartilhamento_id: string
+          criado_em: string
+          id: string
+        }
+        Insert: {
+          compartilhamento_id: string
+          criado_em?: string
+          id?: string
+        }
+        Update: {
+          compartilhamento_id?: string
+          criado_em?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cliques_compartilhamento_compartilhamento_id_fkey"
+            columns: ["compartilhamento_id"]
+            isOneToOne: false
+            referencedRelation: "compartilhamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compartilhamentos: {
+        Row: {
+          criado_em: string
+          id: string
+          peca_id: string | null
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          peca_id?: string | null
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          peca_id?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compartilhamentos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compartilhamentos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cashback: {
         Row: {
           criado_em: string
@@ -360,6 +422,7 @@ export type Database = {
       }
       transacoes: {
         Row: {
+          cashback_utilizado: number
           contato_liberado_em: string | null
           criado_em: string
           id: string
@@ -370,6 +433,7 @@ export type Database = {
           valor_taxa: number
         }
         Insert: {
+          cashback_utilizado?: number
           contato_liberado_em?: string | null
           criado_em?: string
           id?: string
@@ -380,6 +444,7 @@ export type Database = {
           valor_taxa: number
         }
         Update: {
+          cashback_utilizado?: number
           contato_liberado_em?: string | null
           criado_em?: string
           id?: string
@@ -478,8 +543,9 @@ export type Database = {
         }
       }
       confirmar_pagamento_taxa: {
-        Args: { p_transacao_id: string }
+        Args: { p_transacao_id: string; p_usar_cashback?: boolean }
         Returns: {
+          cashback_utilizado: number
           contato_liberado_em: string | null
           criado_em: string
           id: string

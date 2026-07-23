@@ -27,6 +27,17 @@ export default async function PainelVendedoraPage() {
     .eq("usuario_id", usuario!.id)
     .order("criado_em", { ascending: false });
 
+  const { data: cashbackRecebido } = await supabase
+    .from("cashback")
+    .select("valor, usado, valido_ate")
+    .eq("usuario_id", usuario!.id)
+    .eq("origem", "venda");
+
+  const saldoCashback =
+    cashbackRecebido
+      ?.filter((c) => !c.usado && new Date(c.valido_ate) > new Date())
+      .reduce((soma, c) => soma + c.valor, 0) ?? 0;
+
   const pendentes = reservas?.filter((r) => r.status === "aguardando_confirmacao") ?? [];
   const outras = reservas?.filter((r) => r.status !== "aguardando_confirmacao") ?? [];
   const banida = Boolean(usuario?.banido_em);
@@ -51,6 +62,11 @@ export default async function PainelVendedoraPage() {
           Fale com a curadoria se acredita que isso é um engano.
         </p>
       )}
+
+      <p className="text-sm text-neutral-600">
+        Cashback recebido (10% da taxa a cada venda), disponível para abater a taxa de uma futura
+        compra ou aluguel: <strong>R$ {saldoCashback.toFixed(2)}</strong>
+      </p>
 
       <section>
         <h2 className="mb-3 text-lg font-medium">

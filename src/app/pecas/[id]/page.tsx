@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { ReservarForm } from "./reservar-form";
+import { CompartilharBotao } from "./compartilhar-botao";
 
 export default async function PecaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -99,12 +100,15 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
             Esta é uma das suas peças — acompanhe as reservas no seu painel.
           </p>
         ) : usuario ? (
-          <ReservarForm
-            pecaId={peca.id}
-            precoAnunciado={peca.preco_anunciado}
-            criadoEm={peca.criado_em}
-            tipo={peca.tipo}
-          />
+          <>
+            <ReservarForm
+              pecaId={peca.id}
+              precoAnunciado={peca.preco_anunciado}
+              criadoEm={peca.criado_em}
+              tipo={peca.tipo}
+            />
+            <CompartilharBotao pecaId={peca.id} />
+          </>
         ) : (
           <p className="text-sm text-neutral-600">
             <Link href="/login" className="underline">
