@@ -20,7 +20,7 @@ export function AvaliarForm({
   const [state, formAction, pending] = useActionState(action, initialState);
 
   if (state.sucesso) {
-    return <p className="text-xs text-emerald-700">Avaliação de {label} enviada. Obrigada!</p>;
+    return <p className="text-xs text-gold-dark">Avaliação de {label} enviada. Obrigada!</p>;
   }
 
   return (
@@ -44,7 +44,7 @@ export function AvaliarForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-neutral-900 px-3 py-1 text-white disabled:opacity-50"
+        className="rounded border border-gold bg-gold px-3 py-1 text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
       >
         {pending ? "Enviando..." : "Avaliar"}
       </button>

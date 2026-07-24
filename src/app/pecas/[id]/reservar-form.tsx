@@ -24,7 +24,7 @@ export function ReservarForm({
 
   if (state.sucesso) {
     return (
-      <p className="rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+      <p className="rounded border border-gold bg-gold-light/30 px-3 py-2 text-sm text-neutral-900">
         Reserva enviada! A vendedora tem 24h para confirmar a disponibilidade — você será avisada
         pelo WhatsApp cadastrado. Nenhuma cobrança foi feita ainda.
       </p>
@@ -66,7 +66,7 @@ export function ReservarForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-neutral-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+        className="rounded border border-gold bg-gold px-4 py-2 text-sm text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
       >
         {pending ? "Enviando..." : "Reservar / propor valor"}
       </button>

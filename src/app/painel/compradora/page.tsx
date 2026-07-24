@@ -67,7 +67,7 @@ export default async function PainelCompradoraPage() {
 
               {r.status === "contato_liberado" && vendedora && (
                 <div className="mt-2 flex flex-col gap-2">
-                  <div className="rounded bg-emerald-50 px-3 py-2 text-emerald-700">
+                  <div className="rounded border border-gold bg-gold-light/30 px-3 py-2 text-neutral-900">
                     Contato liberado: {vendedora.nome} — WhatsApp {vendedora.whatsapp}
                     {transacao && transacao.cashback_utilizado > 0 && (
                       <span className="block text-xs">

@@ -102,7 +102,7 @@ export default async function VitrinePage({
 
         <button
           type="submit"
-          className="rounded bg-neutral-900 px-4 py-1.5 text-white"
+          className="rounded border border-gold bg-gold px-4 py-1.5 text-neutral-900 hover:bg-gold-dark hover:border-gold-dark"
         >
           Filtrar
         </button>

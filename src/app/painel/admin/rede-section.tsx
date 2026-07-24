@@ -43,7 +43,7 @@ export function RedeSection() {
               setMensagem(res.erro ?? "Papel atualizado.");
             })
           }
-          className="rounded bg-neutral-900 px-3 py-1.5 text-white disabled:opacity-50"
+          className="rounded border border-gold bg-gold px-3 py-1.5 text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
         >
           Promover
         </button>
@@ -74,7 +74,7 @@ export function RedeSection() {
               setMensagem(res.erro ?? "Vínculo de recrutamento definido.");
             })
           }
-          className="rounded bg-neutral-900 px-3 py-1.5 text-white disabled:opacity-50"
+          className="rounded border border-gold bg-gold px-3 py-1.5 text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
         >
           Vincular
         </button>

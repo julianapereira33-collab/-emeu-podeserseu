@@ -45,7 +45,7 @@ export function AtendimentoCard({
                 await definirValorAtendimento(atendimento.id, Number(valor));
               })
             }
-            className="rounded bg-neutral-900 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+            className="rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
           >
             Definir valor e agendar
           </button>
@@ -56,7 +56,7 @@ export function AtendimentoCard({
         <button
           disabled={pending}
           onClick={() => startTransition(async () => { await concluirAtendimento(atendimento.id); })}
-          className="mt-2 rounded bg-emerald-600 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+          className="mt-2 rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
         >
           Marcar como concluído
         </button>

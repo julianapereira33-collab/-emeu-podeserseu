@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useActionState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { entrar, type LoginState } from "./actions";
@@ -12,7 +13,7 @@ function AvisoCadastro() {
   if (searchParams.get("cadastrado") !== "1") return null;
 
   return (
-    <p className="rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+    <p className="rounded border border-gold bg-gold-light/40 px-3 py-2 text-sm text-neutral-900">
       Conta criada! Se a confirmação de e-mail estiver ativa no projeto, confirme antes de entrar.
     </p>
   );
@@ -23,9 +24,9 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-6 px-4">
-      <div>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <Image src="/logo.png" alt="É meu, pode ser seu" width={96} height={96} className="rounded-full" priority />
         <h1 className="text-2xl font-semibold">Entrar</h1>
-        <p className="text-sm text-neutral-500">É meu, pode ser seu</p>
       </div>
 
       <Suspense fallback={null}>
@@ -57,7 +58,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded bg-neutral-900 px-4 py-2 text-white disabled:opacity-50"
+          className="rounded border border-gold bg-gold px-4 py-2 text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
         >
           {pending ? "Entrando..." : "Entrar"}
         </button>
@@ -65,7 +66,7 @@ export default function LoginPage() {
 
       <p className="text-sm text-neutral-500">
         Ainda não tem conta?{" "}
-        <Link href="/cadastro" className="underline">
+        <Link href="/cadastro" className="text-gold-dark underline">
           Cadastre-se
         </Link>
       </p>

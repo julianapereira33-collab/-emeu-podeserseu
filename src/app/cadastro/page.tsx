@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { cadastrar, type CadastroState } from "./actions";
 
@@ -12,9 +13,9 @@ export default function CadastroPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-6 px-4 py-10">
-      <div>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <Image src="/logo.png" alt="É meu, pode ser seu" width={96} height={96} className="rounded-full" priority />
         <h1 className="text-2xl font-semibold">Criar conta</h1>
-        <p className="text-sm text-neutral-500">É meu, pode ser seu</p>
       </div>
 
       <form action={formAction} className="flex flex-col gap-4">
@@ -79,7 +80,7 @@ export default function CadastroPage() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded bg-neutral-900 px-4 py-2 text-white disabled:opacity-50"
+          className="rounded border border-gold bg-gold px-4 py-2 text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
         >
           {pending ? "Criando..." : "Criar conta"}
         </button>
@@ -87,7 +88,7 @@ export default function CadastroPage() {
 
       <p className="text-sm text-neutral-500">
         Já tem conta?{" "}
-        <Link href="/login" className="underline">
+        <Link href="/login" className="text-gold-dark underline">
           Entrar
         </Link>
       </p>

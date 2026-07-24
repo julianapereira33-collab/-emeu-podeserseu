@@ -51,7 +51,7 @@ export default async function PainelParceiraPage() {
               <span>
                 {c.tipo === "override" ? "Override (rede)" : "Direta"} · {c.percentual}%
               </span>
-              <span className={c.paga ? "text-emerald-700" : "text-neutral-500"}>
+              <span className={c.paga ? "text-gold-dark" : "text-neutral-500"}>
                 R$ {c.valor.toFixed(2)} {c.paga ? "· paga" : "· pendente"}
               </span>
             </li>

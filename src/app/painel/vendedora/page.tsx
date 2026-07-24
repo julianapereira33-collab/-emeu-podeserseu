@@ -49,7 +49,7 @@ export default async function PainelVendedoraPage() {
         {!banida && (
           <Link
             href="/painel/vendedora/nova-peca"
-            className="rounded bg-neutral-900 px-4 py-2 text-sm text-white"
+            className="rounded border border-gold bg-gold px-4 py-2 text-sm text-neutral-900 hover:bg-gold-dark hover:border-gold-dark"
           >
             Cadastrar peça
           </Link>

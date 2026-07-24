@@ -32,7 +32,7 @@ export function CuradoriaCard({ peca }: { peca: Tables<"pecas"> }) {
           <button
             disabled={pending}
             onClick={() => startTransition(async () => { await aprovarPeca(peca.id); })}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+            className="rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
           >
             Aprovar
           </button>

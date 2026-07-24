@@ -42,7 +42,7 @@ export function AtendimentoSection({ atendimentos }: { atendimentos: Tables<"ate
               <button
                 disabled={pending}
                 onClick={() => startTransition(async () => { await pagarAtendimento(a.id); })}
-                className="mt-2 rounded bg-neutral-900 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+                className="mt-2 rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
               >
                 Pagar atendimento (R$ {a.valor.toFixed(2)})
               </button>
