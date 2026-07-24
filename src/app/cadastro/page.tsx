@@ -29,6 +29,7 @@ export default function CadastroPage() {
             <option value="vendedora">Vendedora (pessoa física)</option>
             <option value="loja">Loja</option>
             <option value="compradora">Compradora</option>
+            <option value="parceira">Parceira (divulgo peças por comissão)</option>
           </select>
         </label>
 

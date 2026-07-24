@@ -371,6 +371,7 @@ export type Database = {
       }
       reservas: {
         Row: {
+          compartilhamento_id: string | null
           compradora_id: string
           criado_em: string
           id: string
@@ -382,6 +383,7 @@ export type Database = {
           valor_proposta: number | null
         }
         Insert: {
+          compartilhamento_id?: string | null
           compradora_id: string
           criado_em?: string
           id?: string
@@ -393,6 +395,7 @@ export type Database = {
           valor_proposta?: number | null
         }
         Update: {
+          compartilhamento_id?: string | null
           compradora_id?: string
           criado_em?: string
           id?: string
@@ -404,6 +407,13 @@ export type Database = {
           valor_proposta?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reservas_compartilhamento_id_fkey"
+            columns: ["compartilhamento_id"]
+            isOneToOne: false
+            referencedRelation: "compartilhamentos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reservas_compradora_id_fkey"
             columns: ["compradora_id"]

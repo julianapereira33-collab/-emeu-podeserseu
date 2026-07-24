@@ -22,6 +22,18 @@ const PAINEIS: { papel: string; href: string; titulo: string; descricao: string 
     descricao: "Acompanhe suas reservas e pague a taxa quando confirmada.",
   },
   {
+    papel: "parceira",
+    href: "/painel/parceira",
+    titulo: "Painel de parceria",
+    descricao: "Compartilhe peças da vitrine e acompanhe suas comissões.",
+  },
+  {
+    papel: "embaixadora",
+    href: "/painel/parceira",
+    titulo: "Painel de embaixadora",
+    descricao: "Comissões, rede de lojas recrutadas e links de divulgação.",
+  },
+  {
     papel: "admin",
     href: "/painel/admin",
     titulo: "Curadoria (admin)",
@@ -31,7 +43,9 @@ const PAINEIS: { papel: string; href: string; titulo: string; descricao: string 
 
 export default async function PainelHubPage() {
   const usuario = await getCurrentUsuario();
-  const paineisDisponiveis = PAINEIS.filter((p) => usuario?.papel.includes(p.papel));
+  const paineisDisponiveis = PAINEIS.filter((p) => usuario?.papel.includes(p.papel)).filter(
+    (p, index, todos) => todos.findIndex((outro) => outro.href === p.href) === index,
+  );
 
   return (
     <div className="flex flex-col gap-6">

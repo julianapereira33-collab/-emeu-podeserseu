@@ -14,13 +14,13 @@ export async function cadastrar(
   const cidade = String(formData.get("cidade") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const senha = String(formData.get("senha") ?? "");
-  const tipo = String(formData.get("tipo") ?? "vendedora"); // vendedora | loja | compradora
+  const tipo = String(formData.get("tipo") ?? "vendedora"); // vendedora | loja | compradora | parceira
 
   if (!nome || !whatsapp || !email || senha.length < 6) {
     return { erro: "Preencha nome, WhatsApp, e-mail e uma senha com pelo menos 6 caracteres." };
   }
 
-  const papel = tipo === "loja" ? "loja" : tipo === "compradora" ? "compradora" : "vendedora";
+  const papel = ["loja", "compradora", "parceira"].includes(tipo) ? tipo : "vendedora";
 
   const supabase = await createClient();
 

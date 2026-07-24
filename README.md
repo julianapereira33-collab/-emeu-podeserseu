@@ -3,7 +3,7 @@
 Marketplace de moda circular (venda e aluguel de vestidos de festa em segunda mão). Ver
 `blueprint-e-meu-pode-ser-seu.md` para o desenho completo do produto.
 
-Status: **Fases 1, 2 e 3 implementadas**.
+Status: **Fases 1, 2, 3 e 4 implementadas**.
 - Fase 1: cadastro de peça, curadoria, vitrine pública com filtros, reserva → confirmação de
   disponibilidade (24h) → cobrança da taxa → contato liberado.
 - Fase 2: avaliações (peça/vendedora/locadora), exclusividade com aviso/banimento em 2 ocorrências,
@@ -12,6 +12,13 @@ Status: **Fases 1, 2 e 3 implementadas**.
 - Fase 3: taxa de loja (20%, já valia desde a Fase 1) e cashback — 10% da taxa para a vendedora a
   cada venda, e cashback fixo para a compradora a cada 5 cliques reais em links de compartilhamento
   (`/r/[id]`), com validade de 90 dias e uso restrito a abater a taxa de uma futura reserva.
+- Fase 4: programa de parceiros — cadastro com papel "parceira"; `/painel/parceira` (também usado
+  por embaixadoras) com link geral de divulgação, comissões e, para embaixadoras, a rede de lojas
+  recrutadas; `/painel/admin` ganhou a seção "Parceiros e embaixadoras" (promover papel, vincular
+  loja recrutada a uma embaixadora) e "Comissões pendentes de pagamento". Comissão direta (10% da
+  taxa) quando a venda vem de um link de parceira/embaixadora, e override (5%) quando a vendedora
+  foi recrutada por uma embaixadora — sempre calculada sobre transação paga, nunca sobre cadastro
+  ou recrutamento isolado.
 
 ## Stack
 
@@ -57,6 +64,13 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
    ou navegador anônimo) 5 vezes — cada abertura é um "clique real"; a cada 5, R$ 15 de cashback são
    creditados. Ao pagar a taxa de uma próxima reserva, o saldo pode ser usado para abater o valor.
    A vendedora recebe cashback automaticamente (10% da taxa) a cada venda paga.
+10. Para parceria/embaixadoras: cadastre uma conta com papel "parceira"; em `/painel/admin`, na
+    seção "Parceiros e embaixadoras", promova essa conta a embaixadora se quiser testar o override,
+    e vincule uma loja a ela como recrutada. Na conta parceira, gere o link geral em
+    `/painel/parceira` (ou compartilhe uma peça específica em `/pecas/[id]`) — uma compradora que
+    reservar e pagar a taxa a partir desse link gera comissão direta (10% da taxa) para a parceira;
+    se a vendedora da peça foi recrutada por uma embaixadora, a venda também gera override (5%) para
+    a embaixadora, mesmo sem link. Marque as comissões como pagas em `/painel/admin`.
 
 ## O que ainda é simulado / falta para produção
 
@@ -70,8 +84,9 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
 - **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
   contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.
   Suficiente para MVP, mas revisar antes de escalar o programa.
-- **Fase 4**: programa de parceiros/embaixadoras tem o schema pronto no banco (`comissoes`,
-  `usuarios.recrutado_por`), mas nenhuma tela ainda.
+- **Auto-serviço de parceria**: hoje só o admin promove uma conta a parceira/embaixadora e vincula
+  lojas recrutadas (via WhatsApp, em `/painel/admin`). Não há fluxo de auto-cadastro de embaixadora
+  nem de uma loja se "vincular" sozinha a uma embaixadora.
 
 ## Learn More
 

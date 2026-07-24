@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export type ReservarState = { erro?: string; sucesso?: boolean };
 
@@ -28,11 +29,27 @@ export async function reservar(
   }
 
   const supabase = await createClient();
+
+  // Atribui a reserva a um link de parceira/embaixadora, se a compradora
+  // chegou até aqui por um (ver rota /r/[id]). Não é crítico para o
+  // fluxo principal — se o link não existir mais, só não gera comissão.
+  const compartilhamentoId = (await cookies()).get("ref_compartilhamento")?.value;
+  let compartilhamentoValido: string | null = null;
+  if (compartilhamentoId) {
+    const { data } = await supabase
+      .from("compartilhamentos")
+      .select("id")
+      .eq("id", compartilhamentoId)
+      .maybeSingle();
+    compartilhamentoValido = data?.id ?? null;
+  }
+
   const { error } = await supabase.from("reservas").insert({
     peca_id: pecaId,
     compradora_id: usuario.id,
     valor_proposta: valorProposta,
     termos_aceitos: true,
+    compartilhamento_id: compartilhamentoValido,
   });
 
   if (error) {

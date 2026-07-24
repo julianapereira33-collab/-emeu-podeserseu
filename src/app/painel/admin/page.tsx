@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { CuradoriaCard } from "./curadoria-card";
 import { DenunciaCard } from "./denuncia-card";
 import { AtendimentoCard } from "./atendimento-card";
+import { RedeSection } from "./rede-section";
+import { ComissoesSection } from "./comissoes-section";
 
 export default async function PainelAdminPage() {
   const usuario = await getCurrentUsuario();
@@ -35,6 +37,12 @@ export default async function PainelAdminPage() {
     .select("*, usuarios(nome)")
     .neq("status", "concluido")
     .neq("status", "cancelado")
+    .order("criado_em", { ascending: true });
+
+  const { data: comissoesPendentes } = await supabase
+    .from("comissoes")
+    .select("id, tipo, percentual, valor, paga, usuarios(nome)")
+    .eq("paga", false)
     .order("criado_em", { ascending: true });
 
   return (
@@ -85,6 +93,10 @@ export default async function PainelAdminPage() {
           ))}
         </ul>
       </div>
+
+      <RedeSection />
+
+      <ComissoesSection comissoes={comissoesPendentes ?? []} />
     </div>
   );
 }

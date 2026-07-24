@@ -18,18 +18,11 @@ export function propostaMinima(precoAnunciado: number, criadoEm: string): number
   return Math.round(precoAnunciado * pisoPercentual(criadoEm) * 100) / 100;
 }
 
-export function percentualTaxa(papel: string[]): 20 | 30 {
-  return papel.includes("loja") ? 20 : 30;
-}
-
-export function calcularTaxa(valorBase: number, papel: string[]): number {
-  return Math.round(valorBase * (percentualTaxa(papel) / 100) * 100) / 100;
-}
-
 export const PAPEL_LABEL: Record<string, string> = {
   vendedora: "Vendedora",
-  loja: "Loja parceira",
+  loja: "Loja",
   compradora: "Compradora",
+  parceira: "Parceira",
   embaixadora: "Embaixadora de cidade",
   admin: "Curadoria / Admin",
 };
