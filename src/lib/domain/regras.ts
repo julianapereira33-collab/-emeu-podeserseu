@@ -42,5 +42,22 @@ export const STATUS_RESERVA_LABEL: Record<string, string> = {
   contato_liberado: "Contato liberado",
 };
 
-export const TAMANHOS = ["PP", "P", "M", "G", "GG", "36", "38", "40", "42", "44", "46"];
+export const TAMANHOS = [
+  "PP",
+  "P",
+  "M",
+  "G",
+  "GG",
+  "36",
+  "38",
+  "40",
+  "42",
+  "44",
+  "46",
+  "48",
+  "50",
+  "52",
+  "54",
+  "56",
+];
 export const ESTADOS = ["novo", "seminovo", "usado"] as const;
