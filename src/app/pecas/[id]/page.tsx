@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { ReservarForm } from "./reservar-form";
 import { CompartilharBotao } from "./compartilhar-botao";
+import { FotoGaleria } from "./foto-galeria";
 
 export default async function PecaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,31 +30,7 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-8 sm:grid-cols-2">
-      <div className="flex flex-col gap-2">
-        <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-neutral-100">
-          {fotos[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={fotos[0]} alt={peca.descricao} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm text-neutral-400">
-              Sem foto
-            </div>
-          )}
-        </div>
-        {fotos.length > 1 && (
-          <div className="grid grid-cols-4 gap-2">
-            {fotos.slice(1).map((foto) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={foto}
-                src={foto}
-                alt=""
-                className="aspect-square rounded object-cover"
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <FotoGaleria fotos={fotos} alt={peca.descricao} />
 
       <div className="flex flex-col gap-3">
         <span className="text-xs uppercase tracking-wide text-neutral-500">
