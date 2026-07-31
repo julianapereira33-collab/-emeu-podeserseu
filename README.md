@@ -49,8 +49,9 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
    ```
 3. Cadastre uma peça em `/painel/vendedora/nova-peca`, aprove em `/painel/admin` (com o usuário
    admin), depois reserve/proponha em `/pecas/[id]` com uma conta **compradora**.
-4. Confirme a disponibilidade em `/painel/vendedora`, pague a taxa (simulada) em
-   `/painel/compradora` e veja o contato liberado.
+4. Confirme a disponibilidade em `/painel/vendedora`, pague a taxa via Pix em `/painel/compradora`
+   (escaneie o QR code ou copie o código — em ambiente de teste do Mercado Pago, use o app do
+   comprador de teste) e veja o contato liberado quando o webhook confirmar.
 5. Depois do contato liberado, avalie a peça e a vendedora/locadora direto em
    `/painel/compradora`.
 6. Para testar exclusividade/banimento: cadastre uma peça marcando "exclusividade", aprove-a, e em
@@ -72,10 +73,23 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
     se a vendedora da peça foi recrutada por uma embaixadora, a venda também gera override (5%) para
     a embaixadora, mesmo sem link. Marque as comissões como pagas em `/painel/admin`.
 
+## Pagamento da taxa (Pix via Mercado Pago)
+
+O botão "pagar taxa" em `/painel/compradora` gera uma cobrança Pix real pela API do Mercado Pago
+(QR code + código copia-e-cola). A confirmação chega por webhook (`/api/webhooks/mercadopago`), que
+busca o pagamento direto na API do Mercado Pago (nunca confia no payload da notificação) e só então
+chama `confirmar_pagamento_taxa` — a mesma função que já fazia a liberação de contato, cashback da
+vendedora e cálculo de comissões. Há também um polling no navegador que confirma na hora se o webhook
+demorar.
+
+Variáveis necessárias (ver `.env.local`):
+- `MERCADO_PAGO_ACCESS_TOKEN` — comece com o de teste (`TEST-...`) antes de trocar pelo de produção.
+- `SUPABASE_SERVICE_ROLE_KEY` — usada só pelo webhook, que roda sem sessão de usuário.
+
+No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/api/webhooks/mercadopago`.
+
 ## O que ainda é simulado / falta para produção
 
-- **Pagamento da taxa**: o botão "pagar taxa" chama diretamente a função `confirmar_pagamento_taxa`
-  no banco — não há integração real com gateway Pix (Mercado Pago) ainda.
 - **Notificação via WhatsApp (Z-API)**: a expiração de reserva em 24h roda inteiramente no Postgres
   via `pg_cron` (`expirar_reservas_vencidas`, a cada 15 min) — funciona, mas ninguém é avisado por
   WhatsApp ainda. Isso substitui o timer do n8n descrito no blueprint; o disparo de mensagem via

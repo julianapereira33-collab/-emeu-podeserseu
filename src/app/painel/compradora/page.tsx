@@ -37,8 +37,8 @@ export default async function PainelCompradoraPage() {
       <h1 className="text-2xl font-semibold">Minhas reservas</h1>
 
       <p className="rounded bg-neutral-100 px-3 py-2 text-xs text-neutral-600">
-        Nesta fase de desenvolvimento, o pagamento da taxa é simulado por um botão — a integração
-        real com o gateway Pix (Mercado Pago) entra antes de ir para produção.
+        O pagamento da taxa é feito via Pix (Mercado Pago) — clique em &quot;pagar taxa&quot; para
+        gerar o QR code.
       </p>
 
       <CashbackSection saldo={saldoCashback} />

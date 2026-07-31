@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -118,68 +120,6 @@ export type Database = {
           },
         ]
       }
-      cliques_compartilhamento: {
-        Row: {
-          compartilhamento_id: string
-          criado_em: string
-          id: string
-        }
-        Insert: {
-          compartilhamento_id: string
-          criado_em?: string
-          id?: string
-        }
-        Update: {
-          compartilhamento_id?: string
-          criado_em?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cliques_compartilhamento_compartilhamento_id_fkey"
-            columns: ["compartilhamento_id"]
-            isOneToOne: false
-            referencedRelation: "compartilhamentos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      compartilhamentos: {
-        Row: {
-          criado_em: string
-          id: string
-          peca_id: string | null
-          usuario_id: string
-        }
-        Insert: {
-          criado_em?: string
-          id?: string
-          peca_id?: string | null
-          usuario_id: string
-        }
-        Update: {
-          criado_em?: string
-          id?: string
-          peca_id?: string | null
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "compartilhamentos_peca_id_fkey"
-            columns: ["peca_id"]
-            isOneToOne: false
-            referencedRelation: "pecas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "compartilhamentos_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: false
-            referencedRelation: "usuarios"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       cashback: {
         Row: {
           criado_em: string
@@ -214,6 +154,32 @@ export type Database = {
             columns: ["usuario_id"]
             isOneToOne: false
             referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cliques_compartilhamento: {
+        Row: {
+          compartilhamento_id: string
+          criado_em: string
+          id: string
+        }
+        Insert: {
+          compartilhamento_id: string
+          criado_em?: string
+          id?: string
+        }
+        Update: {
+          compartilhamento_id?: string
+          criado_em?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cliques_compartilhamento_compartilhamento_id_fkey"
+            columns: ["compartilhamento_id"]
+            isOneToOne: false
+            referencedRelation: "compartilhamentos"
             referencedColumns: ["id"]
           },
         ]
@@ -262,6 +228,42 @@ export type Database = {
             columns: ["transacao_id"]
             isOneToOne: false
             referencedRelation: "transacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compartilhamentos: {
+        Row: {
+          criado_em: string
+          id: string
+          peca_id: string | null
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          peca_id?: string | null
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          peca_id?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compartilhamentos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compartilhamentos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
             referencedColumns: ["id"]
           },
         ]
@@ -436,9 +438,11 @@ export type Database = {
           contato_liberado_em: string | null
           criado_em: string
           id: string
+          mp_payment_id: string | null
           percentual_taxa: number
           reserva_id: string
           status_pagamento: string
+          usar_cashback_solicitado: boolean
           valor_base: number
           valor_taxa: number
         }
@@ -447,9 +451,11 @@ export type Database = {
           contato_liberado_em?: string | null
           criado_em?: string
           id?: string
+          mp_payment_id?: string | null
           percentual_taxa: number
           reserva_id: string
           status_pagamento?: string
+          usar_cashback_solicitado?: boolean
           valor_base: number
           valor_taxa: number
         }
@@ -458,9 +464,11 @@ export type Database = {
           contato_liberado_em?: string | null
           criado_em?: string
           id?: string
+          mp_payment_id?: string | null
           percentual_taxa?: number
           reserva_id?: string
           status_pagamento?: string
+          usar_cashback_solicitado?: boolean
           valor_base?: number
           valor_taxa?: number
         }
@@ -540,6 +548,42 @@ export type Database = {
           valor: number | null
         }
       }
+      confirmar_pagamento_taxa: {
+        Args: { p_transacao_id: string; p_usar_cashback?: boolean }
+        Returns: {
+          cashback_utilizado: number
+          contato_liberado_em: string | null
+          criado_em: string
+          id: string
+          mp_payment_id: string | null
+          percentual_taxa: number
+          reserva_id: string
+          status_pagamento: string
+          usar_cashback_solicitado: boolean
+          valor_base: number
+          valor_taxa: number
+        }
+      }
+      current_usuario_id: { Args: Record<PropertyKey, never>; Returns: string }
+      expirar_reservas_vencidas: { Args: Record<PropertyKey, never>; Returns: number }
+      iniciar_pagamento_pix: {
+        Args: { p_mp_payment_id: string; p_transacao_id: string; p_usar_cashback?: boolean }
+        Returns: {
+          cashback_utilizado: number
+          contato_liberado_em: string | null
+          criado_em: string
+          id: string
+          mp_payment_id: string | null
+          percentual_taxa: number
+          reserva_id: string
+          status_pagamento: string
+          usar_cashback_solicitado: boolean
+          valor_base: number
+          valor_taxa: number
+        }
+      }
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      piso_percentual: { Args: { p_criado_em: string }; Returns: number }
       registrar_denuncia: {
         Args: { p_evidencia?: string; p_motivo: string; p_vendedora_id: string }
         Returns: {
@@ -552,24 +596,6 @@ export type Database = {
           vendedora_id: string
         }
       }
-      confirmar_pagamento_taxa: {
-        Args: { p_transacao_id: string; p_usar_cashback?: boolean }
-        Returns: {
-          cashback_utilizado: number
-          contato_liberado_em: string | null
-          criado_em: string
-          id: string
-          percentual_taxa: number
-          reserva_id: string
-          status_pagamento: string
-          valor_base: number
-          valor_taxa: number
-        }
-      }
-      current_usuario_id: { Args: Record<PropertyKey, never>; Returns: string }
-      expirar_reservas_vencidas: { Args: Record<PropertyKey, never>; Returns: number }
-      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
-      piso_percentual: { Args: { p_criado_em: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never
