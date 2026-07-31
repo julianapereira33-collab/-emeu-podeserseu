@@ -17,6 +17,12 @@ export async function Nav() {
           <Link href="/vitrine" className="hover:text-gold">
             Vitrine
           </Link>
+          <Link href="/quem-somos" className="hidden hover:text-gold sm:inline">
+            Quem somos
+          </Link>
+          <Link href="/como-funciona" className="hidden hover:text-gold sm:inline">
+            Como funciona
+          </Link>
 
           {usuario ? (
             <>
