@@ -355,6 +355,10 @@ export type Database = {
           fotos_originais: string[]
           fotos_tratadas: string[]
           id: string
+          medida_busto_cm: number | null
+          medida_cintura_cm: number | null
+          medida_comprimento_cm: number | null
+          medida_quadril_cm: number | null
           motivo_reprovacao: string | null
           preco_anunciado: number
           status: string
@@ -376,6 +380,10 @@ export type Database = {
           fotos_originais?: string[]
           fotos_tratadas?: string[]
           id?: string
+          medida_busto_cm?: number | null
+          medida_cintura_cm?: number | null
+          medida_comprimento_cm?: number | null
+          medida_quadril_cm?: number | null
           motivo_reprovacao?: string | null
           preco_anunciado: number
           status?: string
@@ -397,6 +405,10 @@ export type Database = {
           fotos_originais?: string[]
           fotos_tratadas?: string[]
           id?: string
+          medida_busto_cm?: number | null
+          medida_cintura_cm?: number | null
+          medida_comprimento_cm?: number | null
+          medida_quadril_cm?: number | null
           motivo_reprovacao?: string | null
           preco_anunciado?: number
           status?: string

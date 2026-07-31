@@ -24,6 +24,10 @@ export function CuradoriaCard({ peca }: { peca: Tables<"pecas"> }) {
           Tam. {peca.tamanho} · {peca.cor} · {peca.tecido ?? "sem tecido informado"} · {peca.estado}
         </p>
         <p className="text-neutral-500">
+          Medidas: busto {peca.medida_busto_cm ?? "—"} · cintura {peca.medida_cintura_cm ?? "—"} ·
+          quadril {peca.medida_quadril_cm ?? "—"} · comprimento {peca.medida_comprimento_cm ?? "—"} cm
+        </p>
+        <p className="text-neutral-500">
           {peca.tipo === "aluguel" ? "Aluguel" : "Venda"} · R$ {peca.preco_anunciado.toFixed(2)}
           {peca.exclusividade ? " · Exclusiva" : ""}
         </p>

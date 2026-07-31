@@ -34,9 +34,16 @@ export async function atualizarPeca(
     .filter(Boolean);
 
   const preco = Number(precoRaw.replace(",", "."));
+  const busto = Number(String(formData.get("medida_busto_cm") ?? "").replace(",", "."));
+  const cintura = Number(String(formData.get("medida_cintura_cm") ?? "").replace(",", "."));
+  const quadril = Number(String(formData.get("medida_quadril_cm") ?? "").replace(",", "."));
+  const comprimento = Number(String(formData.get("medida_comprimento_cm") ?? "").replace(",", "."));
 
   if (!descricao || !tamanho || !cor || !estado || !tipo || !preco || preco <= 0) {
     return { erro: "Preencha descrição, tamanho, cor, estado, tipo e preço." };
+  }
+  if (!busto || !cintura || !quadril || !comprimento) {
+    return { erro: "Preencha as 4 medidas reais da peça (busto, cintura, quadril, comprimento)." };
   }
 
   const fotosOriginais = [...fotosOriginaisExistentes, ...novasFotosOriginais];
@@ -59,6 +66,10 @@ export async function atualizarPeca(
       exclusividade,
       fotos_originais: fotosOriginais,
       fotos_tratadas: fotosTratadas,
+      medida_busto_cm: busto,
+      medida_cintura_cm: cintura,
+      medida_quadril_cm: quadril,
+      medida_comprimento_cm: comprimento,
       // volta para curadoria depois de editada, se estava reprovada
       status: "pendente",
       motivo_reprovacao: null,

@@ -147,6 +147,60 @@ export function EditarPecaForm({ peca }: { peca: Tables<"pecas"> }) {
           <SeletorCor name="cor" defaultValue={peca.cor} required />
         </label>
 
+        <div className="col-span-2 flex flex-col gap-1 text-sm">
+          <p className="font-medium">Medidas reais (cm)</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <label className="flex flex-col gap-1 text-xs">
+              Busto
+              <input
+                name="medida_busto_cm"
+                type="number"
+                step="0.1"
+                min="1"
+                required
+                defaultValue={peca.medida_busto_cm ?? ""}
+                className="rounded border border-neutral-300 px-2 py-1.5"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              Cintura
+              <input
+                name="medida_cintura_cm"
+                type="number"
+                step="0.1"
+                min="1"
+                required
+                defaultValue={peca.medida_cintura_cm ?? ""}
+                className="rounded border border-neutral-300 px-2 py-1.5"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              Quadril
+              <input
+                name="medida_quadril_cm"
+                type="number"
+                step="0.1"
+                min="1"
+                required
+                defaultValue={peca.medida_quadril_cm ?? ""}
+                className="rounded border border-neutral-300 px-2 py-1.5"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              Comprimento
+              <input
+                name="medida_comprimento_cm"
+                type="number"
+                step="0.1"
+                min="1"
+                required
+                defaultValue={peca.medida_comprimento_cm ?? ""}
+                className="rounded border border-neutral-300 px-2 py-1.5"
+              />
+            </label>
+          </div>
+        </div>
+
         <label className="flex flex-col gap-1 text-sm">
           Tecido
           <input

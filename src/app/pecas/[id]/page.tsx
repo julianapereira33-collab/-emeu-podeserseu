@@ -92,6 +92,30 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
           </div>
         </dl>
 
+        {(peca.medida_busto_cm || peca.medida_cintura_cm || peca.medida_quadril_cm || peca.medida_comprimento_cm) && (
+          <div>
+            <p className="mb-1 text-xs text-neutral-400">Medidas reais (cm)</p>
+            <dl className="grid grid-cols-4 gap-2 text-sm text-neutral-600">
+              <div>
+                <dt className="text-xs text-neutral-400">Busto</dt>
+                <dd>{peca.medida_busto_cm ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-400">Cintura</dt>
+                <dd>{peca.medida_cintura_cm ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-400">Quadril</dt>
+                <dd>{peca.medida_quadril_cm ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-400">Comprimento</dt>
+                <dd>{peca.medida_comprimento_cm ?? "—"}</dd>
+              </div>
+            </dl>
+          </div>
+        )}
+
         {peca.tipo === "aluguel" && <DisponibilidadeCalendario periodos={periodosOcupados} />}
 
         {peca.video_url && (
