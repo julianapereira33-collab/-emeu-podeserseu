@@ -83,7 +83,10 @@ export function ReservarForm({
           <Link href={`/termos?tipo=${tipo}`} target="_blank" className="underline">
             termos de uso para {tipo === "aluguel" ? "aluguel" : "venda"}
           </Link>
-          , incluindo que a taxa não é reembolsável após o pagamento.
+          , incluindo que a taxa não é reembolsável após o pagamento
+          {tipo === "aluguel"
+            ? ", que só posso fazer ajustes reversíveis na peça, que devo devolvê-la já lavada em lavanderia e sem os ajustes, e que em caso de não devolução, atraso significativo ou dano que impeça o reuso da peça devo indenizar a locadora no valor integral anunciado."
+            : "."}
         </span>
       </label>
 

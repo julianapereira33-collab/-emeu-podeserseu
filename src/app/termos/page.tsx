@@ -4,6 +4,8 @@ const TERMOS_COMUNS = [
   "O valor da peça em si (100%) é combinado e pago diretamente entre vendedora e compradora, fora da plataforma. A plataforma nunca custodia esse valor — apenas a taxa de pré-venda.",
   "Reservas sem resposta da vendedora em até 24h são liberadas automaticamente de volta à vitrine, sem qualquer cobrança.",
   "Comprador e vendedor com o mesmo número de WhatsApp não podem transacionar entre si.",
+  "A vendedora/locadora é responsável por informar medidas reais e precisas da peça (busto, cintura, quadril, comprimento) e por fotos e vídeo que representem fielmente seu estado. Se a peça recebida divergir de forma relevante das medidas ou do estado informado no cadastro, a compradora/locatária pode acionar a curadoria para mediar a devolução da taxa.",
+  "Não entrega da peça pela vendedora/locadora após a taxa paga: a taxa é integralmente devolvida à compradora/locatária, e a vendedora/locadora recebe um aviso registrado pela curadoria — na segunda ocorrência (mesma regra da exclusividade), a conta é banida da plataforma.",
 ];
 
 const TERMOS_VENDA = [
@@ -12,8 +14,11 @@ const TERMOS_VENDA = [
 ];
 
 const TERMOS_ALUGUEL = [
-  "A locadora é responsável por devolver a peça no estado combinado com a locatária, no prazo acordado entre as partes.",
-  "Danos ou atrasos na devolução são de responsabilidade das partes e devem ser resolvidos diretamente entre locadora e locatária — a plataforma media disputas, mas não garante o pagamento de indenizações.",
+  "A locadora é responsável por entregar a peça no estado, prazo e local combinados com a locatária.",
+  "Ajustes permitidos: apenas ajustes reversíveis que não danifiquem, diminuam ou desvalorizem a peça — costura à mão, com pontos que não marquem e não estraguem o tecido ao serem desmanchados (ex.: caseamento simples de bainha). Não são permitidos corte, colagem ou qualquer alteração definitiva sem autorização expressa e por escrito da locadora.",
+  "Devolução: a peça deve ser devolvida sem os ajustes feitos (pontos desfeitos) e já limpa em lavanderia profissional, no prazo combinado.",
+  "Não devolução, atraso significativo ou dano que impeça o reuso da peça: a locatária é responsável por indenizar a locadora no valor integral anunciado da peça.",
+  "Divergências sobre o estado da peça na devolução, ou sobre a aplicação da indenização acima, são mediadas pela curadoria da plataforma.",
 ];
 
 export default async function TermosPage({
