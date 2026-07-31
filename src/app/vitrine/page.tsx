@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PecaCard } from "@/components/peca-card";
 import { TAMANHOS, ESTADOS } from "@/lib/domain/regras";
+import { SeletorCor } from "@/components/seletor-cor";
 
 type SearchParams = {
   tamanho?: string;
@@ -25,7 +26,7 @@ export default async function VitrinePage({
     .order("criado_em", { ascending: false });
 
   if (filtros.tamanho) query = query.eq("tamanho", filtros.tamanho);
-  if (filtros.cor) query = query.ilike("cor", `%${filtros.cor}%`);
+  if (filtros.cor) query = query.eq("cor", filtros.cor);
   if (filtros.tecido) query = query.ilike("tecido", `%${filtros.tecido}%`);
   if (filtros.estado) query = query.eq("estado", filtros.estado);
   if (filtros.tipo) query = query.eq("tipo", filtros.tipo);
@@ -82,13 +83,9 @@ export default async function VitrinePage({
           </select>
         </label>
 
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5">
           Cor
-          <input
-            name="cor"
-            defaultValue={filtros.cor ?? ""}
-            className="w-28 rounded border border-neutral-300 px-2 py-1.5"
-          />
+          <SeletorCor name="cor" defaultValue={filtros.cor} incluirTodos />
         </label>
 
         <label className="flex flex-col gap-1">

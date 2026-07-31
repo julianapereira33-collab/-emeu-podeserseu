@@ -61,3 +61,23 @@ export const TAMANHOS = [
   "56",
 ];
 export const ESTADOS = ["novo", "seminovo", "usado"] as const;
+
+export const CORES = [
+  { nome: "Preto", hex: "#111111" },
+  { nome: "Branco", hex: "#ffffff" },
+  { nome: "Vermelho", hex: "#c0392b" },
+  { nome: "Rosa", hex: "#e8a0bf" },
+  { nome: "Laranja", hex: "#e67e22" },
+  { nome: "Amarelo", hex: "#f1c40f" },
+  { nome: "Verde", hex: "#27ae60" },
+  { nome: "Azul", hex: "#2980b9" },
+  { nome: "Roxo", hex: "#8e44ad" },
+  { nome: "Dourado", hex: "#cfa93b" },
+  { nome: "Prateado", hex: "#bdc3c7" },
+  { nome: "Nude", hex: "#e7c9a9" },
+  { nome: "Bege", hex: "#d8c7a1" },
+  { nome: "Marrom", hex: "#7b4b2a" },
+  { nome: "Cinza", hex: "#8a8a8a" },
+  { nome: "Estampado", hex: "conic-gradient(#c0392b,#f1c40f,#27ae60,#2980b9,#8e44ad,#c0392b)" },
+  { nome: "Outra", hex: "#999999" },
+] as const;

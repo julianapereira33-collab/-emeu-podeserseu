@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { aplicarMarcaDagua } from "@/lib/domain/watermark";
 import { cadastrarPeca, sugerirPreco, type NovaPecaState } from "./actions";
 import { TAMANHOS, ESTADOS } from "@/lib/domain/regras";
+import { SeletorCor } from "@/components/seletor-cor";
 
 const initialState: NovaPecaState = {};
 
@@ -131,9 +132,9 @@ export function NovaPecaForm() {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="col-span-2 flex flex-col gap-1.5 text-sm">
           Cor
-          <input name="cor" required className="rounded border border-neutral-300 px-3 py-2" />
+          <SeletorCor name="cor" required />
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
