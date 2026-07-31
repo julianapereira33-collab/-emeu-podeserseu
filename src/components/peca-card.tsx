@@ -12,6 +12,9 @@ export function PecaCard({
   logada?: boolean;
 }) {
   const foto = peca.fotos_tratadas[0] ?? peca.fotos_originais[0];
+  const vendida = peca.status === "vendido";
+  const diasDesdeCadastro = (Date.now() - new Date(peca.criado_em).getTime()) / (1000 * 60 * 60 * 24);
+  const ehNova = !vendida && peca.status === "aprovado" && diasDesdeCadastro <= 7;
 
   return (
     <Link
@@ -24,13 +27,28 @@ export function PecaCard({
           <img
             src={foto}
             alt={peca.descricao}
-            className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+            className={
+              "h-full w-full object-cover transition group-hover:scale-[1.02]" +
+              (vendida ? " grayscale" : "")
+            }
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-neutral-400">
             Sem foto
           </div>
         )}
+        <div className="absolute left-2 top-2 flex flex-col gap-1">
+          {vendida && (
+            <span className="w-fit rounded-full bg-neutral-900 px-2 py-0.5 text-xs text-white">
+              {peca.tipo === "aluguel" ? "Locado" : "Vendido"}
+            </span>
+          )}
+          {ehNova && (
+            <span className="w-fit rounded-full bg-gold px-2 py-0.5 text-xs text-neutral-900">
+              Novo
+            </span>
+          )}
+        </div>
         <div className="absolute right-2 top-2">
           <FavoritoBotao pecaId={peca.id} favoritadoInicial={favoritado} logada={logada} />
         </div>
