@@ -11,7 +11,10 @@ export function PecaCard({
   favoritado?: boolean;
   logada?: boolean;
 }) {
-  const foto = peca.fotos_tratadas[0] ?? peca.fotos_originais[0];
+  const foto =
+    (peca.foto_editorial_aprovada && peca.foto_editorial_url) ||
+    peca.fotos_tratadas[0] ||
+    peca.fotos_originais[0];
   const vendida = peca.status === "vendido";
   const diasDesdeCadastro = (Date.now() - new Date(peca.criado_em).getTime()) / (1000 * 60 * 60 * 24);
   const ehNova = !vendida && peca.status === "aprovado" && diasDesdeCadastro <= 7;

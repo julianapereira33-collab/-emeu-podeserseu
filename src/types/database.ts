@@ -350,6 +350,8 @@ export type Database = {
           dono_id: string
           estado: string
           exclusividade: boolean
+          foto_editorial_aprovada: boolean
+          foto_editorial_url: string | null
           fotos_originais: string[]
           fotos_tratadas: string[]
           id: string
@@ -369,6 +371,8 @@ export type Database = {
           dono_id: string
           estado: string
           exclusividade?: boolean
+          foto_editorial_aprovada?: boolean
+          foto_editorial_url?: string | null
           fotos_originais?: string[]
           fotos_tratadas?: string[]
           id?: string
@@ -388,6 +392,8 @@ export type Database = {
           dono_id?: string
           estado?: string
           exclusividade?: boolean
+          foto_editorial_aprovada?: boolean
+          foto_editorial_url?: string | null
           fotos_originais?: string[]
           fotos_tratadas?: string[]
           id?: string
