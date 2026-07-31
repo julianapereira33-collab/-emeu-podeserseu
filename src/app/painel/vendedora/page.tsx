@@ -43,6 +43,19 @@ export default async function PainelVendedoraPage() {
   const outras = reservas?.filter((r) => r.status !== "aguardando_confirmacao") ?? [];
   const banida = Boolean(usuario?.banido_em);
 
+  let motivoBanimento: string | null = null;
+  if (banida) {
+    const { data: denuncia } = await supabase
+      .from("denuncias_banimento")
+      .select("motivo")
+      .eq("vendedora_id", usuario!.id)
+      .not("banido_em", "is", null)
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    motivoBanimento = denuncia?.motivo ?? null;
+  }
+
   return (
     <div className="flex flex-col gap-10">
       <div className="flex items-center justify-between">
@@ -59,8 +72,8 @@ export default async function PainelVendedoraPage() {
 
       {banida && (
         <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">
-          Sua conta foi banida por violação de exclusividade e não pode cadastrar novas peças.
-          Fale com a curadoria se acredita que isso é um engano.
+          Sua conta foi banida{motivoBanimento ? ` — motivo: ${motivoBanimento}` : ""} e não pode
+          cadastrar novas peças. Fale com a curadoria se acredita que isso é um engano.
         </p>
       )}
 

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { reservar, type ReservarState } from "./actions";
 import { propostaMinima } from "@/lib/domain/regras";
+import { TERMOS_VERSAO } from "@/lib/domain/termos";
 
 const initialState: ReservarState = {};
 
@@ -78,15 +79,28 @@ export function ReservarForm({
 
       <label className="flex items-start gap-2 text-xs text-neutral-600">
         <input type="checkbox" name="termos_aceitos" required className="mt-0.5" />
+        <input type="hidden" name="termos_versao" value={TERMOS_VERSAO} />
         <span>
           Li e aceito os{" "}
           <Link href={`/termos?tipo=${tipo}`} target="_blank" className="underline">
             termos de uso para {tipo === "aluguel" ? "aluguel" : "venda"}
-          </Link>
-          , incluindo que a taxa não é reembolsável após o pagamento
-          {tipo === "aluguel"
-            ? ", que só posso fazer ajustes reversíveis na peça, que devo devolvê-la já lavada em lavanderia e sem os ajustes, e que em caso de não devolução, atraso significativo ou dano que impeça o reuso da peça devo indenizar a locadora no valor integral anunciado."
-            : "."}
+          </Link>{" "}
+          (versão {TERMOS_VERSAO}), incluindo que a plataforma é só intermediadora (não é parte no
+          contrato entre mim e a {tipo === "aluguel" ? "locadora" : "vendedora"}), e que a taxa só
+          é reembolsável nos casos previstos ali
+          {tipo === "aluguel" ? (
+            <>
+              . Para aluguel, sei que{" "}
+              <strong>
+                só posso fazer ajustes reversíveis, devo devolver a peça sem os ajustes e já lavada
+                em lavanderia, e que atraso, não devolução ou dano que impeça o reuso geram multa
+                ou indenização conforme detalhado nos termos
+              </strong>
+              .
+            </>
+          ) : (
+            "."
+          )}
         </span>
       </label>
 

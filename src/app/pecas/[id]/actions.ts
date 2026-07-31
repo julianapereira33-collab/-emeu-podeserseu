@@ -27,6 +27,7 @@ export async function reservar(
   if (formData.get("termos_aceitos") !== "on") {
     return { erro: "É preciso aceitar os termos de uso para reservar." };
   }
+  const termosVersao = String(formData.get("termos_versao") ?? "").trim() || null;
 
   const supabase = await createClient();
 
@@ -73,6 +74,7 @@ export async function reservar(
     compradora_id: usuario.id,
     valor_proposta: valorProposta,
     termos_aceitos: true,
+    termos_versao: termosVersao,
     compartilhamento_id: compartilhamentoValido,
     locacao_inicio: locacaoInicio,
     locacao_fim: locacaoFim,

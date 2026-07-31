@@ -440,6 +440,7 @@ export type Database = {
           prazo_confirmacao: string
           status: string
           termos_aceitos: boolean
+          termos_versao: string | null
           valor_aceito: number | null
           valor_proposta: number | null
         }
@@ -454,6 +455,7 @@ export type Database = {
           prazo_confirmacao?: string
           status?: string
           termos_aceitos?: boolean
+          termos_versao?: string | null
           valor_aceito?: number | null
           valor_proposta?: number | null
         }
@@ -468,6 +470,7 @@ export type Database = {
           prazo_confirmacao?: string
           status?: string
           termos_aceitos?: boolean
+          termos_versao?: string | null
           valor_aceito?: number | null
           valor_proposta?: number | null
         }
