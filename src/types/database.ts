@@ -306,6 +306,42 @@ export type Database = {
           },
         ]
       }
+      favoritos: {
+        Row: {
+          criado_em: string
+          id: string
+          peca_id: string
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          peca_id: string
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          peca_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favoritos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favoritos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pecas: {
         Row: {
           cor: string

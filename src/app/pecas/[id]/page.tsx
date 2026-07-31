@@ -5,6 +5,7 @@ import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { ReservarForm } from "./reservar-form";
 import { CompartilharBotao } from "./compartilhar-botao";
 import { FotoGaleria } from "./foto-galeria";
+import { FavoritoBotao } from "./favorito-botao";
 
 export default async function PecaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,15 +29,31 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
       ? avaliacoesDona.reduce((soma, a) => soma + a.nota, 0) / avaliacoesDona.length
       : null;
 
+  let favoritado = false;
+  if (usuario) {
+    const { data } = await supabase
+      .from("favoritos")
+      .select("id")
+      .eq("usuario_id", usuario.id)
+      .eq("peca_id", peca.id)
+      .maybeSingle();
+    favoritado = Boolean(data);
+  }
+
   return (
     <main className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-8 sm:grid-cols-2">
       <FotoGaleria fotos={fotos} alt={peca.descricao} />
 
       <div className="flex flex-col gap-3">
-        <span className="text-xs uppercase tracking-wide text-neutral-500">
-          {peca.tipo === "aluguel" ? "Aluguel" : "Venda"}
-          {peca.exclusividade ? " · Exclusiva" : ""}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-wide text-neutral-500">
+            {peca.tipo === "aluguel" ? "Aluguel" : "Venda"}
+            {peca.exclusividade ? " · Exclusiva" : ""}
+          </span>
+          {!ehDona && (
+            <FavoritoBotao pecaId={peca.id} favoritadoInicial={favoritado} logada={Boolean(usuario)} />
+          )}
+        </div>
         <h1 className="text-xl font-semibold">{peca.descricao}</h1>
         <p className="text-2xl font-semibold">
           {peca.preco_anunciado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}

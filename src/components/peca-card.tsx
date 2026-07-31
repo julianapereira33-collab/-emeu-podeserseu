@@ -1,7 +1,16 @@
 import Link from "next/link";
 import type { Tables } from "@/types/database";
+import { FavoritoBotao } from "@/app/pecas/[id]/favorito-botao";
 
-export function PecaCard({ peca }: { peca: Tables<"pecas"> }) {
+export function PecaCard({
+  peca,
+  favoritado = false,
+  logada = false,
+}: {
+  peca: Tables<"pecas">;
+  favoritado?: boolean;
+  logada?: boolean;
+}) {
   const foto = peca.fotos_tratadas[0] ?? peca.fotos_originais[0];
 
   return (
@@ -9,7 +18,7 @@ export function PecaCard({ peca }: { peca: Tables<"pecas"> }) {
       href={`/pecas/${peca.id}`}
       className="group flex flex-col overflow-hidden rounded-lg border border-neutral-200 transition hover:shadow-md"
     >
-      <div className="aspect-[3/4] w-full bg-neutral-100">
+      <div className="relative aspect-[3/4] w-full bg-neutral-100">
         {foto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -22,6 +31,9 @@ export function PecaCard({ peca }: { peca: Tables<"pecas"> }) {
             Sem foto
           </div>
         )}
+        <div className="absolute right-2 top-2">
+          <FavoritoBotao pecaId={peca.id} favoritadoInicial={favoritado} logada={logada} />
+        </div>
       </div>
       <div className="flex flex-col gap-1 p-3">
         <div className="flex items-center justify-between gap-2">

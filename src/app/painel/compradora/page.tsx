@@ -4,6 +4,7 @@ import { STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
 import { PagarBotao } from "./pagar-botao";
 import { AvaliarForm } from "./avaliar-form";
 import { CashbackSection } from "./cashback-section";
+import { PecaCard } from "@/components/peca-card";
 
 export default async function PainelCompradoraPage() {
   const usuario = await getCurrentUsuario();
@@ -29,6 +30,13 @@ export default async function PainelCompradoraPage() {
 
   const saldoCashback = cashbackDisponivel?.reduce((soma, c) => soma + c.valor, 0) ?? 0;
 
+  const { data: favoritos } = await supabase
+    .from("favoritos")
+    .select("peca_id, pecas(*)")
+    .eq("usuario_id", usuario!.id)
+    .order("criado_em", { ascending: false });
+  const pecasFavoritas = favoritos?.map((f) => f.pecas).filter(Boolean) ?? [];
+
   const jaAvaliou = (transacaoId: string, tipoAlvo: string) =>
     avaliacoesFeitas?.some((a) => a.transacao_id === transacaoId && a.tipo_alvo === tipoAlvo) ?? false;
 
@@ -42,6 +50,17 @@ export default async function PainelCompradoraPage() {
       </p>
 
       <CashbackSection saldo={saldoCashback} />
+
+      {pecasFavoritas.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-medium">Meus favoritos</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {pecasFavoritas.map((peca) => (
+              <PecaCard key={peca!.id} peca={peca!} favoritado logada />
+            ))}
+          </div>
+        </section>
+      )}
 
       <ul className="flex flex-col gap-3">
         {reservas?.map((r) => {

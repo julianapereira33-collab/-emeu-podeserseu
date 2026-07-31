@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { PecaCard } from "@/components/peca-card";
 import { TAMANHOS, ESTADOS } from "@/lib/domain/regras";
 import { SeletorCor } from "@/components/seletor-cor";
@@ -33,6 +34,16 @@ export default async function VitrinePage({
 
   const { data: pecas, error } = await query;
 
+  const usuario = await getCurrentUsuario();
+  let favoritosIds = new Set<string>();
+  if (usuario) {
+    const { data: favoritos } = await supabase
+      .from("favoritos")
+      .select("peca_id")
+      .eq("usuario_id", usuario.id);
+    favoritosIds = new Set(favoritos?.map((f) => f.peca_id));
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-semibold">Vitrine</h1>
@@ -47,7 +58,12 @@ export default async function VitrinePage({
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {pecas?.map((peca) => (
-              <PecaCard key={peca.id} peca={peca} />
+              <PecaCard
+                key={peca.id}
+                peca={peca}
+                favoritado={favoritosIds.has(peca.id)}
+                logada={Boolean(usuario)}
+              />
             ))}
           </div>
         </div>

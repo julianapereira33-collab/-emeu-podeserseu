@@ -63,3 +63,36 @@ export async function reservar(
   revalidatePath("/vitrine");
   return { sucesso: true };
 }
+
+export async function toggleFavorito(pecaId: string): Promise<{ favoritado: boolean } | { erro: string }> {
+  const usuario = await getCurrentUsuario();
+  if (!usuario) return { erro: "Você precisa entrar na sua conta para favoritar." };
+
+  const supabase = await createClient();
+
+  const { data: existente } = await supabase
+    .from("favoritos")
+    .select("id")
+    .eq("usuario_id", usuario.id)
+    .eq("peca_id", pecaId)
+    .maybeSingle();
+
+  if (existente) {
+    const { error } = await supabase.from("favoritos").delete().eq("id", existente.id);
+    if (error) return { erro: error.message };
+    revalidatePath("/vitrine");
+    revalidatePath(`/pecas/${pecaId}`);
+    revalidatePath("/painel/compradora");
+    return { favoritado: false };
+  }
+
+  const { error } = await supabase
+    .from("favoritos")
+    .insert({ usuario_id: usuario.id, peca_id: pecaId });
+  if (error) return { erro: error.message };
+
+  revalidatePath("/vitrine");
+  revalidatePath(`/pecas/${pecaId}`);
+  revalidatePath("/painel/compradora");
+  return { favoritado: true };
+}
