@@ -503,6 +503,9 @@ export type Database = {
           cashback_utilizado: number
           contato_liberado_em: string | null
           criado_em: string
+          estornado_em: string | null
+          estornado_por: string | null
+          estorno_motivo: string | null
           id: string
           mp_payment_id: string | null
           percentual_taxa: number
@@ -516,6 +519,9 @@ export type Database = {
           cashback_utilizado?: number
           contato_liberado_em?: string | null
           criado_em?: string
+          estornado_em?: string | null
+          estornado_por?: string | null
+          estorno_motivo?: string | null
           id?: string
           mp_payment_id?: string | null
           percentual_taxa: number
@@ -529,6 +535,9 @@ export type Database = {
           cashback_utilizado?: number
           contato_liberado_em?: string | null
           criado_em?: string
+          estornado_em?: string | null
+          estornado_por?: string | null
+          estorno_motivo?: string | null
           id?: string
           mp_payment_id?: string | null
           percentual_taxa?: number

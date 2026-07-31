@@ -82,3 +82,18 @@ export async function buscarPagamentoPix(paymentId: string): Promise<PagamentoPi
   }
   return parsePagamento(json);
 }
+
+export async function estornarPagamento(paymentId: string): Promise<void> {
+  const resposta = await fetch(`${BASE_URL}/${paymentId}/refunds`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken()}`,
+    },
+  });
+
+  if (!resposta.ok) {
+    const json = await resposta.json().catch(() => ({}));
+    throw new Error(`Mercado Pago recusou o estorno: ${json.message ?? resposta.statusText}`);
+  }
+}

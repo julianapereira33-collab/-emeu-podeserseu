@@ -6,6 +6,7 @@ import { DenunciaCard } from "./denuncia-card";
 import { AtendimentoCard } from "./atendimento-card";
 import { RedeSection } from "./rede-section";
 import { ComissoesSection } from "./comissoes-section";
+import { EstornoCard } from "./estorno-card";
 
 export default async function PainelAdminPage() {
   const usuario = await getCurrentUsuario();
@@ -44,6 +45,15 @@ export default async function PainelAdminPage() {
     .select("id, tipo, percentual, valor, paga, usuarios(nome)")
     .eq("paga", false)
     .order("criado_em", { ascending: true });
+
+  const { data: transacoesPagas } = await supabase
+    .from("transacoes")
+    .select(
+      "id, valor_taxa, contato_liberado_em, reservas(pecas(descricao, usuarios(nome)), usuarios(nome))",
+    )
+    .eq("status_pagamento", "pago")
+    .order("criado_em", { ascending: false })
+    .limit(30);
 
   return (
     <div className="flex flex-col gap-10">
@@ -90,6 +100,30 @@ export default async function PainelAdminPage() {
         <ul className="mt-3 flex flex-col gap-2">
           {atendimentos?.map((a) => (
             <AtendimentoCard key={a.id} atendimento={a} usuarioNome={a.usuarios?.nome ?? "—"} />
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-medium">Taxas pagas — estorno</h2>
+        <p className="text-xs text-neutral-500">
+          Estorno é exclusivo da curadoria, exige motivo por escrito e é permitido uma única vez
+          por transação.
+        </p>
+        {(!transacoesPagas || transacoesPagas.length === 0) && (
+          <p className="mt-2 text-sm text-neutral-500">Nenhuma taxa paga recente.</p>
+        )}
+        <ul className="mt-3 flex flex-col gap-2">
+          {transacoesPagas?.map((t) => (
+            <EstornoCard
+              key={t.id}
+              transacaoId={t.id}
+              pecaDescricao={t.reservas?.pecas?.descricao ?? "—"}
+              compradoraNome={t.reservas?.usuarios?.nome ?? "—"}
+              vendedoraNome={t.reservas?.pecas?.usuarios?.nome ?? "—"}
+              valorTaxa={t.valor_taxa}
+              pagoEm={t.contato_liberado_em ?? new Date().toISOString()}
+            />
           ))}
         </ul>
       </div>
