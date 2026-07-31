@@ -1,6 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Playfair_Display } from "next/font/google";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
+
+const marca = Playfair_Display({ subsets: ["latin"], weight: ["600"] });
 
 export async function Nav() {
   const usuario = await getCurrentUsuario();
@@ -8,9 +11,9 @@ export async function Nav() {
   return (
     <header className="border-b border-neutral-900 bg-neutral-900">
       <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/vitrine" className="flex items-center gap-2 font-semibold tracking-wide text-gold">
+        <Link href="/vitrine" className="flex items-center gap-2 text-gold">
           <Image src="/logo.png" alt="" width={36} height={36} className="rounded-full" />
-          É meu, pode ser seu
+          <span className={`${marca.className} text-lg tracking-wide`}>É meu, pode ser seu</span>
         </Link>
 
         <div className="flex items-center gap-4 text-sm text-white">
