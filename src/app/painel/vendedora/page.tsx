@@ -117,29 +117,63 @@ export default async function PainelVendedoraPage() {
 
       <section>
         <h2 className="mb-3 text-lg font-medium">Minhas peças</h2>
-        <ul className="flex flex-col gap-2">
-          {pecas?.map((p) => (
-            <li
-              key={p.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 p-3 text-sm"
-            >
-              <div>
-                <p className="font-medium">{p.descricao}</p>
-                <p className="text-neutral-500">
-                  Tam. {p.tamanho} · {p.cor} · R$ {p.preco_anunciado.toFixed(2)}
-                  {p.venda_assistida ? " · Venda assistida" : ""}
-                </p>
-                {p.status === "reprovado" && p.motivo_reprovacao && (
-                  <p className="text-xs text-red-600">Motivo: {p.motivo_reprovacao}</p>
-                )}
-              </div>
-              <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs">
-                {STATUS_PECA_LABEL[p.status] ?? p.status}
-              </span>
-            </li>
-          ))}
+        <p className="mb-3 text-xs text-neutral-500">
+          A sua vitrine própria — clique numa peça para ver as fotos. Peças em curadoria ou
+          reprovadas podem ser editadas; depois de aprovadas, fale com a curadoria para alterar
+          algo.
+        </p>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {pecas?.map((p) => {
+            const foto = p.fotos_tratadas[0] ?? p.fotos_originais[0];
+            const editavel = p.status === "pendente" || p.status === "reprovado";
+            return (
+              <li
+                key={p.id}
+                className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 text-sm"
+              >
+                <Link href={`/pecas/${p.id}`} className="block">
+                  <div className="aspect-[3/4] w-full bg-neutral-100">
+                    {foto ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={foto}
+                        alt={p.descricao}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+                        Sem foto
+                      </div>
+                    )}
+                  </div>
+                </Link>
+                <div className="flex flex-col gap-1 p-2">
+                  <span className="w-fit rounded-full bg-neutral-100 px-2 py-0.5 text-[11px]">
+                    {STATUS_PECA_LABEL[p.status] ?? p.status}
+                  </span>
+                  <p className="line-clamp-2 text-xs text-neutral-700">{p.descricao}</p>
+                  <p className="text-xs text-neutral-500">
+                    Tam. {p.tamanho} · {p.cor} · R$ {p.preco_anunciado.toFixed(2)}
+                  </p>
+                  {p.status === "reprovado" && p.motivo_reprovacao && (
+                    <p className="text-[11px] text-red-600">Motivo: {p.motivo_reprovacao}</p>
+                  )}
+                  {editavel && (
+                    <Link
+                      href={`/painel/vendedora/pecas/${p.id}/editar`}
+                      className="mt-1 w-fit rounded border border-neutral-300 px-2 py-1 text-[11px] hover:bg-neutral-50"
+                    >
+                      Editar
+                    </Link>
+                  )}
+                </div>
+              </li>
+            );
+          })}
           {(!pecas || pecas.length === 0) && (
-            <p className="text-sm text-neutral-500">Você ainda não cadastrou nenhuma peça.</p>
+            <p className="col-span-full text-sm text-neutral-500">
+              Você ainda não cadastrou nenhuma peça.
+            </p>
           )}
         </ul>
       </section>
