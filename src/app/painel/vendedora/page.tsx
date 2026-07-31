@@ -4,6 +4,7 @@ import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { STATUS_PECA_LABEL, STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
 import { ReservaAcoes } from "./reserva-actions";
 import { AtendimentoSection } from "./atendimento-section";
+import { FotoEditorialWidget } from "./pecas/[id]/foto-editorial-widget";
 
 export default async function PainelVendedoraPage() {
   const usuario = await getCurrentUsuario();
@@ -166,6 +167,11 @@ export default async function PainelVendedoraPage() {
                       Editar
                     </Link>
                   )}
+                  <FotoEditorialWidget
+                    pecaId={p.id}
+                    fotoEditorialUrl={p.foto_editorial_url}
+                    aprovada={p.foto_editorial_aprovada}
+                  />
                 </div>
               </li>
             );
