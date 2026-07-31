@@ -416,6 +416,8 @@ export type Database = {
           compradora_id: string
           criado_em: string
           id: string
+          locacao_fim: string | null
+          locacao_inicio: string | null
           peca_id: string
           prazo_confirmacao: string
           status: string
@@ -428,6 +430,8 @@ export type Database = {
           compradora_id: string
           criado_em?: string
           id?: string
+          locacao_fim?: string | null
+          locacao_inicio?: string | null
           peca_id: string
           prazo_confirmacao?: string
           status?: string
@@ -440,6 +444,8 @@ export type Database = {
           compradora_id?: string
           criado_em?: string
           id?: string
+          locacao_fim?: string | null
+          locacao_inicio?: string | null
           peca_id?: string
           prazo_confirmacao?: string
           status?: string
@@ -622,6 +628,10 @@ export type Database = {
         }
       }
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      periodos_ocupados: {
+        Args: { p_peca_id: string }
+        Returns: { locacao_fim: string; locacao_inicio: string }[]
+      }
       piso_percentual: { Args: { p_criado_em: string }; Returns: number }
       registrar_denuncia: {
         Args: { p_evidencia?: string; p_motivo: string; p_vendedora_id: string }

@@ -30,6 +30,30 @@ export async function reservar(
 
   const supabase = await createClient();
 
+  const { data: peca } = await supabase.from("pecas").select("tipo").eq("id", pecaId).maybeSingle();
+
+  const locacaoInicio = String(formData.get("locacao_inicio") ?? "").trim() || null;
+  const locacaoFim = String(formData.get("locacao_fim") ?? "").trim() || null;
+
+  if (peca?.tipo === "aluguel") {
+    if (!locacaoInicio || !locacaoFim) {
+      return { erro: "Informe as datas de retirada e devolução." };
+    }
+    if (locacaoFim < locacaoInicio) {
+      return { erro: "A data de devolução precisa ser depois da data de retirada." };
+    }
+  }
+
+  if (peca?.tipo === "aluguel" && locacaoInicio && locacaoFim) {
+    const { data: ocupados } = await supabase.rpc("periodos_ocupados", { p_peca_id: pecaId });
+    const sobrepoe = ocupados?.some(
+      (p) => p.locacao_inicio && p.locacao_fim && locacaoInicio <= p.locacao_fim && locacaoFim >= p.locacao_inicio,
+    );
+    if (sobrepoe) {
+      return { erro: "Essas datas já estão reservadas para esta peça. Escolha outro período." };
+    }
+  }
+
   // Atribui a reserva a um link de parceira/embaixadora, se a compradora
   // chegou até aqui por um (ver rota /r/[id]). Não é crítico para o
   // fluxo principal — se o link não existir mais, só não gera comissão.
@@ -50,6 +74,8 @@ export async function reservar(
     valor_proposta: valorProposta,
     termos_aceitos: true,
     compartilhamento_id: compartilhamentoValido,
+    locacao_inicio: locacaoInicio,
+    locacao_fim: locacaoFim,
   });
 
   if (error) {

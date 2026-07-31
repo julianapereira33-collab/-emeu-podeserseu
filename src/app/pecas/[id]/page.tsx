@@ -6,6 +6,7 @@ import { ReservarForm } from "./reservar-form";
 import { CompartilharBotao } from "./compartilhar-botao";
 import { FotoGaleria } from "./foto-galeria";
 import { FavoritoBotao } from "./favorito-botao";
+import { DisponibilidadeCalendario } from "./disponibilidade-calendario";
 
 export default async function PecaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,6 +39,12 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
       .eq("peca_id", peca.id)
       .maybeSingle();
     favoritado = Boolean(data);
+  }
+
+  let periodosOcupados: { locacao_inicio: string | null; locacao_fim: string | null }[] = [];
+  if (peca.tipo === "aluguel") {
+    const { data } = await supabase.rpc("periodos_ocupados", { p_peca_id: peca.id });
+    periodosOcupados = data ?? [];
   }
 
   return (
@@ -84,6 +91,8 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
             <dd>{peca.estado}</dd>
           </div>
         </dl>
+
+        {peca.tipo === "aluguel" && <DisponibilidadeCalendario periodos={periodosOcupados} />}
 
         {peca.video_url && (
           <div>

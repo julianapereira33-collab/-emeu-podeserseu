@@ -34,6 +34,32 @@ export function ReservarForm({
   return (
     <form action={formAction} className="flex flex-col gap-3 rounded border border-neutral-200 p-4">
       <p className="text-sm font-medium">Reservar ou propor um valor</p>
+
+      {tipo === "aluguel" && (
+        <div className="grid grid-cols-2 gap-3">
+          <label className="flex flex-col gap-1 text-sm">
+            Retirada
+            <input
+              name="locacao_inicio"
+              type="date"
+              required
+              min={new Date().toISOString().slice(0, 10)}
+              className="rounded border border-neutral-300 px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Devolução
+            <input
+              name="locacao_fim"
+              type="date"
+              required
+              min={new Date().toISOString().slice(0, 10)}
+              className="rounded border border-neutral-300 px-3 py-2"
+            />
+          </label>
+        </div>
+      )}
+
       <label className="flex flex-col gap-1 text-sm">
         Proposta de valor (opcional — deixe em branco para reservar pelo valor anunciado)
         <input
