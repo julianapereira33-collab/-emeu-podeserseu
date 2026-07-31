@@ -10,19 +10,28 @@ import { SeletorCor } from "@/components/seletor-cor";
 const initialState: NovaPecaState = {};
 
 type Foto = { original: string; tratada: string };
+type Slot = "frente" | "costas" | "detalhe";
+const SLOTS: { key: Slot; label: string }[] = [
+  { key: "frente", label: "Frente" },
+  { key: "costas", label: "Costas" },
+  { key: "detalhe", label: "Detalhe" },
+];
 
 export function NovaPecaForm() {
   const [state, formAction, pending] = useActionState(cadastrarPeca, initialState);
-  const [fotos, setFotos] = useState<Foto[]>([]);
-  const [enviandoFotos, setEnviandoFotos] = useState(false);
+  const [fotosPorSlot, setFotosPorSlot] = useState<Partial<Record<Slot, Foto>>>({});
+  const [video, setVideo] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState<Slot | "video" | null>(null);
   const [erroFotos, setErroFotos] = useState<string | null>(null);
   const [sugestao, setSugestao] = useState<string | null>(null);
   const [buscandoSugestao, setBuscandoSugestao] = useState(false);
   const [dados, setDados] = useState({ descricao: "", tamanho: "", tecido: "", estado: "" });
 
-  async function handleFiles(fileList: FileList | null) {
-    if (!fileList?.length) return;
-    setEnviandoFotos(true);
+  const tudoPronto = SLOTS.every((s) => fotosPorSlot[s.key]) && Boolean(video);
+
+  async function handleFotoSlot(slot: Slot, file: File | null) {
+    if (!file) return;
+    setEnviando(slot);
     setErroFotos(null);
 
     try {
@@ -32,36 +41,62 @@ export function NovaPecaForm() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Sessão expirada, entre novamente.");
 
-      const novasFotos: Foto[] = [];
+      const id = crypto.randomUUID();
+      const watermarked = await aplicarMarcaDagua(file);
 
-      for (const file of Array.from(fileList)) {
-        const id = crypto.randomUUID();
-        const watermarked = await aplicarMarcaDagua(file);
+      const pathOriginal = `${user.id}/${id}-original.jpg`;
+      const pathTratada = `${user.id}/${id}-tratada.jpg`;
 
-        const pathOriginal = `${user.id}/${id}-original.jpg`;
-        const pathTratada = `${user.id}/${id}-tratada.jpg`;
+      const [up1, up2] = await Promise.all([
+        supabase.storage.from("pecas-fotos").upload(pathOriginal, file, { upsert: false }),
+        supabase.storage
+          .from("pecas-fotos")
+          .upload(pathTratada, watermarked, { upsert: false, contentType: "image/jpeg" }),
+      ]);
 
-        const [up1, up2] = await Promise.all([
-          supabase.storage.from("pecas-fotos").upload(pathOriginal, file, { upsert: false }),
-          supabase.storage
-            .from("pecas-fotos")
-            .upload(pathTratada, watermarked, { upsert: false, contentType: "image/jpeg" }),
-        ]);
+      if (up1.error) throw up1.error;
+      if (up2.error) throw up2.error;
 
-        if (up1.error) throw up1.error;
-        if (up2.error) throw up2.error;
-
-        novasFotos.push({
+      setFotosPorSlot((prev) => ({
+        ...prev,
+        [slot]: {
           original: supabase.storage.from("pecas-fotos").getPublicUrl(pathOriginal).data.publicUrl,
           tratada: supabase.storage.from("pecas-fotos").getPublicUrl(pathTratada).data.publicUrl,
-        });
-      }
-
-      setFotos((prev) => [...prev, ...novasFotos]);
+        },
+      }));
     } catch (err) {
-      setErroFotos(err instanceof Error ? err.message : "Erro ao enviar fotos.");
+      setErroFotos(err instanceof Error ? err.message : "Erro ao enviar foto.");
     } finally {
-      setEnviandoFotos(false);
+      setEnviando(null);
+    }
+  }
+
+  async function handleVideo(file: File | null) {
+    if (!file) return;
+    setEnviando("video");
+    setErroFotos(null);
+
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Sessão expirada, entre novamente.");
+
+      const id = crypto.randomUUID();
+      const extensao = file.name.split(".").pop() || "mp4";
+      const path = `${user.id}/${id}-video.${extensao}`;
+
+      const { error } = await supabase.storage
+        .from("pecas-fotos")
+        .upload(path, file, { upsert: false, contentType: file.type || "video/mp4" });
+      if (error) throw error;
+
+      setVideo(supabase.storage.from("pecas-fotos").getPublicUrl(path).data.publicUrl);
+    } catch (err) {
+      setErroFotos(err instanceof Error ? err.message : "Erro ao enviar vídeo.");
+    } finally {
+      setEnviando(null);
     }
   }
 
@@ -75,32 +110,68 @@ export function NovaPecaForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4 max-w-lg">
-      <label className="flex flex-col gap-1 text-sm">
-        Fotos
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => handleFiles(e.target.files)}
-          className="rounded border border-neutral-300 px-3 py-2"
-        />
-      </label>
-      {enviandoFotos && <p className="text-xs text-neutral-500">Enviando e aplicando marca d&apos;água...</p>}
-      {erroFotos && <p className="text-xs text-red-600">{erroFotos}</p>}
-      {fotos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {fotos.map((f) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={f.tratada} src={f.tratada} alt="" className="h-20 w-20 rounded object-cover" />
+      <div className="flex flex-col gap-2 text-sm">
+        <p className="font-medium">Fotos e vídeo (obrigatório)</p>
+        <p className="text-xs text-neutral-500">
+          Envie as 3 fotos abaixo e um vídeo curto mostrando o estado real da peça — isso ajuda a
+          curadoria a aprovar mais rápido.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {SLOTS.map(({ key, label }) => (
+            <label key={key} className="flex flex-col gap-1">
+              <span className="text-xs text-neutral-600">{label}</span>
+              {fotosPorSlot[key] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={fotosPorSlot[key]!.tratada}
+                  alt={label}
+                  className="aspect-[3/4] w-full rounded border border-neutral-300 object-cover"
+                />
+              ) : (
+                <div className="flex aspect-[3/4] w-full items-center justify-center rounded border border-dashed border-neutral-300 text-xs text-neutral-400">
+                  {enviando === key ? "Enviando..." : "Vazio"}
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFotoSlot(key, e.target.files?.[0] ?? null)}
+                className="text-xs"
+              />
+            </label>
           ))}
         </div>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-neutral-600">Vídeo do estado real</span>
+          {video ? (
+            <video src={video} controls className="w-full rounded border border-neutral-300" />
+          ) : (
+            <div className="flex h-16 items-center justify-center rounded border border-dashed border-neutral-300 text-xs text-neutral-400">
+              {enviando === "video" ? "Enviando..." : "Nenhum vídeo enviado"}
+            </div>
+          )}
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => handleVideo(e.target.files?.[0] ?? null)}
+            className="text-xs"
+          />
+        </label>
+
+        {erroFotos && <p className="text-xs text-red-600">{erroFotos}</p>}
+      </div>
+
+      {SLOTS.map(
+        ({ key }) =>
+          fotosPorSlot[key] && (
+            <span key={key}>
+              <input type="hidden" name="fotos_originais" value={fotosPorSlot[key]!.original} />
+              <input type="hidden" name="fotos_tratadas" value={fotosPorSlot[key]!.tratada} />
+            </span>
+          ),
       )}
-      {fotos.map((f) => (
-        <input key={f.original} type="hidden" name="fotos_originais" value={f.original} />
-      ))}
-      {fotos.map((f) => (
-        <input key={f.tratada} type="hidden" name="fotos_tratadas" value={f.tratada} />
-      ))}
+      {video && <input type="hidden" name="video_url" value={video} />}
 
       <label className="flex flex-col gap-1 text-sm">
         Descrição
@@ -208,11 +279,16 @@ export function NovaPecaForm() {
         {sugestao && <p className="mt-2 text-neutral-600">{sugestao}</p>}
       </div>
 
+      {!tudoPronto && (
+        <p className="text-xs text-neutral-500">
+          Envie as 3 fotos (frente, costas, detalhe) e o vídeo para poder enviar para curadoria.
+        </p>
+      )}
       {state.erro && <p className="text-sm text-red-600">{state.erro}</p>}
 
       <button
         type="submit"
-        disabled={pending || enviandoFotos}
+        disabled={pending || enviando !== null || !tudoPronto}
         className="rounded border border-gold bg-gold px-4 py-2 text-sm text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
       >
         {pending ? "Enviando para curadoria..." : "Enviar para curadoria"}

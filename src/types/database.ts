@@ -324,6 +324,7 @@ export type Database = {
           tecido: string | null
           tipo: string
           venda_assistida: boolean
+          video_url: string | null
         }
         Insert: {
           cor: string
@@ -342,6 +343,7 @@ export type Database = {
           tecido?: string | null
           tipo: string
           venda_assistida?: boolean
+          video_url?: string | null
         }
         Update: {
           cor?: string
@@ -360,6 +362,7 @@ export type Database = {
           tecido?: string | null
           tipo?: string
           venda_assistida?: boolean
+          video_url?: string | null
         }
         Relationships: [
           {

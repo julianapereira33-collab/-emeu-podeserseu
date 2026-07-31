@@ -24,14 +24,18 @@ export async function cadastrarPeca(
   const vendaAssistida = formData.get("venda_assistida") === "on";
   const fotosOriginais = formData.getAll("fotos_originais").map(String).filter(Boolean);
   const fotosTratadas = formData.getAll("fotos_tratadas").map(String).filter(Boolean);
+  const videoUrl = String(formData.get("video_url") ?? "").trim();
 
   const preco = Number(precoRaw.replace(",", "."));
 
   if (!descricao || !tamanho || !cor || !estado || !tipo || !preco || preco <= 0) {
     return { erro: "Preencha descrição, tamanho, cor, estado, tipo e preço." };
   }
-  if (fotosOriginais.length === 0) {
-    return { erro: "Envie ao menos uma foto." };
+  if (fotosOriginais.length < 3) {
+    return { erro: "Envie as 3 fotos obrigatórias (frente, costas, detalhe)." };
+  }
+  if (!videoUrl) {
+    return { erro: "Envie um vídeo mostrando o estado real da peça." };
   }
 
   const supabase = await createClient();
@@ -48,6 +52,7 @@ export async function cadastrarPeca(
     venda_assistida: vendaAssistida,
     fotos_originais: fotosOriginais,
     fotos_tratadas: fotosTratadas,
+    video_url: videoUrl,
   });
 
   if (error) return { erro: error.message };

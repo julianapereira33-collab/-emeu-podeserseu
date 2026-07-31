@@ -7,15 +7,15 @@ import { aprovarPeca, reprovarPeca } from "./actions";
 export function CuradoriaCard({ peca }: { peca: Tables<"pecas"> }) {
   const [pending, startTransition] = useTransition();
   const [motivo, setMotivo] = useState("");
-  const foto = peca.fotos_tratadas[0] ?? peca.fotos_originais[0];
+  const fotos = peca.fotos_tratadas.length ? peca.fotos_tratadas : peca.fotos_originais;
 
   return (
     <li className="flex flex-col gap-3 rounded border border-neutral-200 p-4 sm:flex-row">
-      <div className="h-32 w-24 shrink-0 overflow-hidden rounded bg-neutral-100">
-        {foto ? (
+      <div className="flex shrink-0 gap-1">
+        {fotos.slice(0, 3).map((f) => (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={foto} alt="" className="h-full w-full object-cover" />
-        ) : null}
+          <img key={f} src={f} alt="" className="h-32 w-24 rounded object-cover" />
+        ))}
       </div>
 
       <div className="flex-1 text-sm">
@@ -27,6 +27,16 @@ export function CuradoriaCard({ peca }: { peca: Tables<"pecas"> }) {
           {peca.tipo === "aluguel" ? "Aluguel" : "Venda"} · R$ {peca.preco_anunciado.toFixed(2)}
           {peca.exclusividade ? " · Exclusiva" : ""}
         </p>
+        {peca.video_url && (
+          <a
+            href={peca.video_url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-gold-dark underline"
+          >
+            Ver vídeo do estado real
+          </a>
+        )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button

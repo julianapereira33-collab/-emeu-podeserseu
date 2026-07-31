@@ -68,6 +68,13 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
           </div>
         </dl>
 
+        {peca.video_url && (
+          <div>
+            <p className="mb-1 text-xs text-neutral-400">Vídeo do estado real</p>
+            <video src={peca.video_url} controls className="w-full rounded-lg" />
+          </div>
+        )}
+
         {peca.status !== "aprovado" ? (
           <p className="rounded bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
             Esta peça não está mais disponível na vitrine no momento.
