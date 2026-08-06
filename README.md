@@ -90,10 +90,13 @@ No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/
 
 ## O que ainda é simulado / falta para produção
 
-- **Notificação via WhatsApp (Z-API)**: a expiração de reserva em 24h roda inteiramente no Postgres
-  via `pg_cron` (`expirar_reservas_vencidas`, a cada 15 min) — funciona, mas ninguém é avisado por
-  WhatsApp ainda. Isso substitui o timer do n8n descrito no blueprint; o disparo de mensagem via
-  Z-API (pedir confirmação à vendedora, lembrete, etc.) ainda não está implementado.
+- **Notificação de reserva pendente**: a expiração de reserva em 24h roda inteiramente no Postgres
+  via `pg_cron` (`expirar_reservas_vencidas`, a cada 15 min) — funciona, mas ninguém é avisado ainda
+  quando uma reserva é criada. **Decisão (05/08/2026): não usar Z-API nem n8n** (custo por mensagem) —
+  substituído por notificação in-app (a vendedora vê "você recebeu uma mensagem" no painel) + e-mail
+  + SMS, disparados juntos (in-app sozinho não é confiável para algo com prazo). Se WhatsApp for
+  necessário no futuro, usar Evolution API (self-hosted) em vez de Z-API. Nenhum desses canais está
+  implementado ainda — ver `blueprint-e-meu-pode-ser-seu.md` seção 7.
 - **Atendimento assistido**: o pagamento também é simulado, mesmo padrão da taxa.
 - **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
   contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.
