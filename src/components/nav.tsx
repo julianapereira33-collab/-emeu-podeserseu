@@ -2,11 +2,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { Playfair_Display } from "next/font/google";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
+import { createClient } from "@/lib/supabase/server";
+import { NotificacoesSino } from "./notificacoes-sino";
+import type { Tables } from "@/types/database";
 
 const marca = Playfair_Display({ subsets: ["latin"], weight: ["600"] });
 
 export async function Nav() {
   const usuario = await getCurrentUsuario();
+
+  let notificacoes: Tables<"notificacoes">[] = [];
+  if (usuario) {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("notificacoes")
+      .select("*")
+      .order("criado_em", { ascending: false })
+      .limit(20);
+    notificacoes = data ?? [];
+  }
 
   return (
     <header className="border-b border-neutral-900 bg-neutral-900">
@@ -29,6 +43,7 @@ export async function Nav() {
 
           {usuario ? (
             <>
+              <NotificacoesSino notificacoesIniciais={notificacoes} />
               <Link href="/painel" className="hover:text-gold">
                 Meu painel
               </Link>
