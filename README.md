@@ -91,12 +91,21 @@ No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/
 ## O que ainda é simulado / falta para produção
 
 - **Notificação de reserva pendente**: a expiração de reserva em 24h roda inteiramente no Postgres
-  via `pg_cron` (`expirar_reservas_vencidas`, a cada 15 min) — funciona, mas ninguém é avisado ainda
-  quando uma reserva é criada. **Decisão (05/08/2026): não usar Z-API nem n8n** (custo por mensagem) —
-  substituído por notificação in-app (a vendedora vê "você recebeu uma mensagem" no painel) + e-mail
-  + SMS, disparados juntos (in-app sozinho não é confiável para algo com prazo). Se WhatsApp for
-  necessário no futuro, usar Evolution API (self-hosted) em vez de Z-API. Nenhum desses canais está
-  implementado ainda — ver `blueprint-e-meu-pode-ser-seu.md` seção 7.
+  via `pg_cron` (`expirar_reservas_vencidas`, a cada 15 min). **Decisão (05/08/2026): não usar Z-API
+  nem n8n cloud** (custo por mensagem/assinatura) — a partir de 10/08/2026, a Juliana passou a ter
+  uma VPS própria (Hostinger) rodando n8n self-hosted e Evolution API self-hosted, então WhatsApp
+  real virou viável sem esses custos.
+  - **Implementado**: notificação in-app (sino no menu, tabela `notificacoes`, trigger no banco —
+    ver migration `fase7_notificacoes_inapp`) **+ WhatsApp via Evolution API** (`src/lib/evolution/client.ts`,
+    instância dedicada `emeu-podeserseu`), disparados juntos nos 3 pontos do fluxo: nova reserva avisa
+    a vendedora, confirmação/recusa avisa a compradora. WhatsApp é canal auxiliar — se
+    `EVOLUTION_API_URL`/`EVOLUTION_API_KEY`/`EVOLUTION_INSTANCE` não estiverem configuradas, o envio é
+    só omitido, nunca derruba o fluxo de reserva.
+  - **Falta**: a expiração automática via `pg_cron` (`expirar_reservas_vencidas`) ainda não dispara
+    WhatsApp nem notificação in-app — ela só muda o status no banco. Cobrir esse caso exige rodar a
+    notificação a partir do Postgres (ex.: `pg_net` chamando a Evolution API direto do trigger) ou um
+    cron na aplicação (Vercel Cron) que reprocessa reservas recém-expiradas. Também faltam e-mail e
+    SMS como canais adicionais (precisam de provedor + credenciais).
 - **Atendimento assistido**: o pagamento também é simulado, mesmo padrão da taxa.
 - **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
   contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.

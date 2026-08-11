@@ -4,6 +4,15 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { enviarWhatsapp } from "@/lib/evolution/client";
+
+function appUrl() {
+  const host =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    process.env.VERCEL_URL ??
+    process.env.NEXT_PUBLIC_APP_URL;
+  return host ? (host.startsWith("http") ? host : `https://${host}`) : null;
+}
 
 export type ReservarState = { erro?: string; sucesso?: boolean };
 
@@ -31,7 +40,11 @@ export async function reservar(
 
   const supabase = await createClient();
 
-  const { data: peca } = await supabase.from("pecas").select("tipo").eq("id", pecaId).maybeSingle();
+  const { data: peca } = await supabase
+    .from("pecas")
+    .select("tipo, dono_id, descricao")
+    .eq("id", pecaId)
+    .maybeSingle();
 
   const locacaoInicio = String(formData.get("locacao_inicio") ?? "").trim() || null;
   const locacaoFim = String(formData.get("locacao_fim") ?? "").trim() || null;
@@ -85,6 +98,21 @@ export async function reservar(
     // validadas no banco (trigger `trg_reservas_before_insert`) — a
     // mensagem já vem pronta para exibição.
     return { erro: error.message };
+  }
+
+  if (peca?.dono_id) {
+    const { data: vendedora } = await supabase
+      .from("usuarios")
+      .select("whatsapp")
+      .eq("id", peca.dono_id)
+      .maybeSingle();
+    const base = appUrl();
+    if (vendedora?.whatsapp) {
+      await enviarWhatsapp(
+        vendedora.whatsapp,
+        `Você recebeu uma reserva para "${peca.descricao}". Confirme a disponibilidade em até 24h${base ? ` em ${base}/painel/vendedora` : " no seu painel"}.`,
+      );
+    }
   }
 
   revalidatePath(`/pecas/${pecaId}`);
