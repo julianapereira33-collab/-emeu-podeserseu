@@ -90,23 +90,21 @@ No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/
 
 ## O que ainda é simulado / falta para produção
 
-- **Notificação de reserva pendente**: a expiração de reserva em 24h roda inteiramente no Postgres
-  via `pg_cron` (`expirar_reservas_vencidas`, a cada 15 min). **Decisão (05/08/2026): não usar Z-API
-  nem n8n cloud** (custo por mensagem/assinatura) — a partir de 10/08/2026, a Juliana passou a ter
-  uma VPS própria (Hostinger) rodando n8n self-hosted e Evolution API self-hosted, então WhatsApp
-  real virou viável sem esses custos.
-  - **Implementado e ativo em produção**: notificação in-app (sino no menu, tabela `notificacoes`,
-    trigger no banco — migration `fase7_notificacoes_inapp`, aplicada em 11/08/2026) **+ WhatsApp via
-    Evolution API** (`src/lib/evolution/client.ts`, instância dedicada `emeu-podeserseu`), disparados
-    juntos nos 3 pontos do fluxo: nova reserva avisa a vendedora, confirmação/recusa avisa a
-    compradora. WhatsApp é canal auxiliar — se `EVOLUTION_API_URL`/`EVOLUTION_API_KEY`/`EVOLUTION_INSTANCE`
-    não estiverem configuradas (ainda faltam na Vercel de produção — só existem em `.env.local` por
-    enquanto), o envio é só omitido, nunca derruba o fluxo de reserva.
-  - **Falta**: a expiração automática via `pg_cron` (`expirar_reservas_vencidas`) ainda não dispara
-    WhatsApp nem notificação in-app — ela só muda o status no banco. Cobrir esse caso exige rodar a
-    notificação a partir do Postgres (ex.: `pg_net` chamando a Evolution API direto do trigger) ou um
-    cron na aplicação (Vercel Cron) que reprocessa reservas recém-expiradas. Também faltam e-mail e
-    SMS como canais adicionais (precisam de provedor + credenciais).
+- **Notificação de reserva pendente**: **implementada e ativa em produção**, cobrindo os 3 pontos do
+  fluxo (nova reserva avisa a vendedora; confirmação/recusa — manual ou pela expiração automática de
+  24h via `pg_cron`, `expirar_reservas_vencidas` a cada 15 min — avisa a compradora), por dois canais:
+  - **In-app**: sino no menu, tabela `notificacoes`, trigger no banco (migration
+    `fase7_notificacoes_inapp`).
+  - **WhatsApp real**, via Evolution API self-hosted (instância dedicada `emeu-podeserseu` na VPS
+    própria da Juliana — decisão de 05/08/2026 de não usar Z-API/n8n cloud por custo). Disparado
+    **direto do Postgres via `pg_net`** (migration `fase7c_whatsapp_via_pg_net`), não pelo Next.js —
+    isso é o que permite cobrir também a expiração automática do `pg_cron`, que não passa por nenhuma
+    rota da aplicação. Credenciais da Evolution API ficam no Supabase Vault (criptografadas), lidas
+    só dentro da função do trigger. Canal auxiliar: se a chamada falhar, a notificação in-app (que já
+    aconteceu no mesmo trigger) garante que a pessoa saiba pelo painel mesmo assim.
+  - Testado de ponta a ponta em produção (dado sintético, limpo depois) nos dois caminhos —
+    manual e automático — confirmando entrega real (HTTP 201 da Evolution API).
+  - **Falta**: e-mail e SMS como canais adicionais (precisam de provedor + credenciais).
 - **Atendimento assistido**: o pagamento também é simulado, mesmo padrão da taxa.
 - **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
   contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.
