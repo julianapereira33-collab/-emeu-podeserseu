@@ -38,18 +38,37 @@ export async function POST(request: NextRequest) {
     .eq("id", pagamento.externalReference)
     .maybeSingle();
 
-  if (!transacao || transacao.status_pagamento === "pago") {
+  if (transacao) {
+    if (transacao.status_pagamento === "pago") {
+      return NextResponse.json({ ok: true }, { status: 200 });
+    }
+
+    const { error } = await supabase.rpc("confirmar_pagamento_taxa", {
+      p_transacao_id: pagamento.externalReference,
+      p_usar_cashback: transacao.usar_cashback_solicitado,
+    });
+
+    if (error && !error.message.includes("já processado")) {
+      console.error("Erro ao confirmar pagamento de taxa via webhook Mercado Pago:", error.message);
+      return NextResponse.json({ ok: false }, { status: 500 });
+    }
     return NextResponse.json({ ok: true }, { status: 200 });
   }
 
-  const { error } = await supabase.rpc("confirmar_pagamento_taxa", {
-    p_transacao_id: pagamento.externalReference,
-    p_usar_cashback: transacao.usar_cashback_solicitado,
-  });
+  const { data: atendimento } = await supabase
+    .from("atendimentos_assistidos")
+    .select("status_pagamento")
+    .eq("id", pagamento.externalReference)
+    .maybeSingle();
 
-  if (error && !error.message.includes("já processado")) {
-    console.error("Erro ao confirmar pagamento via webhook Mercado Pago:", error.message);
-    return NextResponse.json({ ok: false }, { status: 500 });
+  if (atendimento && atendimento.status_pagamento !== "pago") {
+    const { error } = await supabase.rpc("confirmar_pagamento_atendimento", {
+      p_atendimento_id: pagamento.externalReference,
+    });
+    if (error && !error.message.includes("já processado")) {
+      console.error("Erro ao confirmar pagamento de atendimento via webhook Mercado Pago:", error.message);
+      return NextResponse.json({ ok: false }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true }, { status: 200 });

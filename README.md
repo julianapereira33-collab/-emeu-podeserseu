@@ -60,7 +60,7 @@ Abra [http://localhost:3000](http://localhost:3000). As credenciais do Supabase 
 7. Para venda assistida: marque "venda assistida" ao cadastrar a peça — a taxa da transação sai
    automaticamente em 60% em vez de 30/20%.
 8. Para atendimento assistido: solicite em `/painel/vendedora`, defina o valor em `/painel/admin`,
-   pague de volta em `/painel/vendedora`.
+   pague de volta em `/painel/vendedora` via Pix (mesmo fluxo real da taxa).
 9. Para cashback: em `/painel/compradora`, gere um link de compartilhamento e abra-o (em outra aba
    ou navegador anônimo) 5 vezes — cada abertura é um "clique real"; a cada 5, R$ 15 de cashback são
    creditados. Ao pagar a taxa de uma próxima reserva, o saldo pode ser usado para abater o valor.
@@ -105,7 +105,11 @@ No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/
   - Testado de ponta a ponta em produção (dado sintético, limpo depois) nos dois caminhos —
     manual e automático — confirmando entrega real (HTTP 201 da Evolution API).
   - **Falta**: e-mail e SMS como canais adicionais (precisam de provedor + credenciais).
-- **Atendimento assistido**: o pagamento também é simulado, mesmo padrão da taxa.
+- ~~**Atendimento assistido**: o pagamento também é simulado~~ — **implementado em 11/08/2026**:
+  Pix real via Mercado Pago, mesmo padrão da taxa (`iniciar_pagamento_pix_atendimento` /
+  `confirmar_pagamento_atendimento`, webhook único em `/api/webhooks/mercadopago` reconhece taxa e
+  atendimento pelo `external_reference`). Testado de ponta a ponta em produção (dado sintético,
+  limpo depois): geração de cobrança, confirmação e trava de pagamento duplicado, todos OK.
 - **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
   contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.
   Suficiente para MVP, mas revisar antes de escalar o programa.

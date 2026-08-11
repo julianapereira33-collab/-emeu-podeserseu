@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           criado_em: string
           id: string
+          mp_payment_id: string | null
           observacoes: string | null
           peca_id: string | null
           status: string
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           criado_em?: string
           id?: string
+          mp_payment_id?: string | null
           observacoes?: string | null
           peca_id?: string | null
           status?: string
@@ -40,6 +42,7 @@ export type Database = {
         Update: {
           criado_em?: string
           id?: string
+          mp_payment_id?: string | null
           observacoes?: string | null
           peca_id?: string | null
           status?: string
@@ -665,6 +668,22 @@ export type Database = {
         Returns: {
           criado_em: string
           id: string
+          mp_payment_id: string | null
+          observacoes: string | null
+          peca_id: string | null
+          status: string
+          status_pagamento: string
+          tipo: string
+          usuario_id: string
+          valor: number | null
+        }
+      }
+      iniciar_pagamento_pix_atendimento: {
+        Args: { p_atendimento_id: string; p_mp_payment_id: string }
+        Returns: {
+          criado_em: string
+          id: string
+          mp_payment_id: string | null
           observacoes: string | null
           peca_id: string | null
           status: string

@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 import type { Tables } from "@/types/database";
-import { solicitarAtendimento, pagarAtendimento } from "./atendimento-actions";
+import { solicitarAtendimento } from "./atendimento-actions";
+import { PagarAtendimentoBotao } from "./pagar-atendimento-botao";
 
 export function AtendimentoSection({ atendimentos }: { atendimentos: Tables<"atendimentos_assistidos">[] }) {
   const [pending, startTransition] = useTransition();
@@ -39,13 +40,7 @@ export function AtendimentoSection({ atendimentos }: { atendimentos: Tables<"ate
               {a.valor ? ` · R$ ${a.valor.toFixed(2)}` : " · aguardando valor da curadoria"}
             </p>
             {a.valor && a.status_pagamento === "pendente" && (
-              <button
-                disabled={pending}
-                onClick={() => startTransition(async () => { await pagarAtendimento(a.id); })}
-                className="mt-2 rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
-              >
-                Pagar atendimento (R$ {a.valor.toFixed(2)})
-              </button>
+              <PagarAtendimentoBotao atendimentoId={a.id} valor={a.valor} />
             )}
           </li>
         ))}
