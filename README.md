@@ -95,12 +95,13 @@ No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/
   nem n8n cloud** (custo por mensagem/assinatura) — a partir de 10/08/2026, a Juliana passou a ter
   uma VPS própria (Hostinger) rodando n8n self-hosted e Evolution API self-hosted, então WhatsApp
   real virou viável sem esses custos.
-  - **Implementado**: notificação in-app (sino no menu, tabela `notificacoes`, trigger no banco —
-    ver migration `fase7_notificacoes_inapp`) **+ WhatsApp via Evolution API** (`src/lib/evolution/client.ts`,
-    instância dedicada `emeu-podeserseu`), disparados juntos nos 3 pontos do fluxo: nova reserva avisa
-    a vendedora, confirmação/recusa avisa a compradora. WhatsApp é canal auxiliar — se
-    `EVOLUTION_API_URL`/`EVOLUTION_API_KEY`/`EVOLUTION_INSTANCE` não estiverem configuradas, o envio é
-    só omitido, nunca derruba o fluxo de reserva.
+  - **Implementado e ativo em produção**: notificação in-app (sino no menu, tabela `notificacoes`,
+    trigger no banco — migration `fase7_notificacoes_inapp`, aplicada em 11/08/2026) **+ WhatsApp via
+    Evolution API** (`src/lib/evolution/client.ts`, instância dedicada `emeu-podeserseu`), disparados
+    juntos nos 3 pontos do fluxo: nova reserva avisa a vendedora, confirmação/recusa avisa a
+    compradora. WhatsApp é canal auxiliar — se `EVOLUTION_API_URL`/`EVOLUTION_API_KEY`/`EVOLUTION_INSTANCE`
+    não estiverem configuradas (ainda faltam na Vercel de produção — só existem em `.env.local` por
+    enquanto), o envio é só omitido, nunca derruba o fluxo de reserva.
   - **Falta**: a expiração automática via `pg_cron` (`expirar_reservas_vencidas`) ainda não dispara
     WhatsApp nem notificação in-app — ela só muda o status no banco. Cobrir esse caso exige rodar a
     notificação a partir do Postgres (ex.: `pg_net` chamando a Evolution API direto do trigger) ou um
