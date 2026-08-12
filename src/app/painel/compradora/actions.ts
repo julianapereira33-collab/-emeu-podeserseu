@@ -1,9 +1,8 @@
 "use server";
 
-import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { criarPagamentoPix, buscarPagamentoPix } from "@/lib/mercadopago/client";
+import { criarPreferenciaCheckout, buscarPagamentoPorReferencia } from "@/lib/mercadopago/client";
 
 function appUrl() {
   const host =
@@ -14,15 +13,15 @@ function appUrl() {
   return host.startsWith("http") ? host : `https://${host}`;
 }
 
-type ResultadoPagamento =
+type ResultadoCheckout =
   | { erro: string }
   | { sucesso: true; pago: true }
-  | { sucesso: true; qrCode: string; qrCodeBase64: string };
+  | { sucesso: true; preferenceId: string };
 
 export async function pagarTaxa(
   transacaoId: string,
   usarCashback: boolean,
-): Promise<ResultadoPagamento> {
+): Promise<ResultadoCheckout> {
   const supabase = await createClient();
 
   const {
@@ -39,19 +38,6 @@ export async function pagarTaxa(
   if (erroTransacao || !transacao) return { erro: "Transação não encontrada." };
   if (transacao.status_pagamento !== "pendente") return { erro: "Pagamento já processado." };
 
-  // já existe uma cobrança Pix gerada para esta transação — reaproveita em vez de gerar outra
-  if (transacao.mp_payment_id) {
-    const pagamento = await buscarPagamentoPix(transacao.mp_payment_id);
-    if (pagamento.status === "approved") {
-      revalidatePath("/painel/compradora");
-      return { erro: "Pagamento já aprovado — atualizando a página em instantes." };
-    }
-    if (["pending", "in_process"].includes(pagamento.status) && pagamento.qrCode && pagamento.qrCodeBase64) {
-      return { sucesso: true as const, qrCode: pagamento.qrCode, qrCodeBase64: pagamento.qrCodeBase64 };
-    }
-    // rejeitada/cancelada/expirada: segue e gera uma nova cobrança abaixo
-  }
-
   let valorAPagar = transacao.valor_taxa;
   if (usarCashback) {
     const { data: cashback } = await supabase
@@ -64,7 +50,7 @@ export async function pagarTaxa(
     valorAPagar = Math.max(0, transacao.valor_taxa - Math.min(saldoCashback, transacao.valor_taxa));
   }
 
-  // cashback cobre a taxa inteira — confirma direto, sem gerar cobrança Pix
+  // cashback cobre a taxa inteira — confirma direto, sem gerar cobrança
   if (valorAPagar <= 0) {
     const { error } = await supabase.rpc("confirmar_pagamento_taxa", {
       p_transacao_id: transacaoId,
@@ -75,31 +61,29 @@ export async function pagarTaxa(
     return { sucesso: true as const, pago: true as const };
   }
 
+  // registra a intenção de usar cashback antes de abrir o checkout — o webhook
+  // lê isso da transação na hora de confirmar, já que o pagamento em si só existe
+  // depois que a compradora escolhe o meio (Pix/cartão/boleto) dentro do modal
+  const { error: erroRegistrar } = await supabase.rpc("registrar_intencao_pagamento_taxa", {
+    p_transacao_id: transacaoId,
+    p_usar_cashback: usarCashback,
+  });
+  if (erroRegistrar) return { erro: erroRegistrar.message };
+
   const descricao = transacao.reservas.pecas?.descricao
     ? `Taxa - ${transacao.reservas.pecas.descricao}`
     : "Taxa de reserva";
 
-  const pagamento = await criarPagamentoPix({
+  const { preferenceId } = await criarPreferenciaCheckout({
     valor: valorAPagar,
     descricao,
     externalReference: transacaoId,
     payerEmail: user.email,
     notificationUrl: `${appUrl()}/api/webhooks/mercadopago`,
-    idempotencyKey: randomUUID(),
+    backUrl: `${appUrl()}/painel/compradora`,
   });
 
-  if (!pagamento.qrCode || !pagamento.qrCodeBase64) {
-    return { erro: "Não foi possível gerar o QR code do Pix. Tente novamente." };
-  }
-
-  const { error: erroSalvar } = await supabase.rpc("iniciar_pagamento_pix", {
-    p_transacao_id: transacaoId,
-    p_mp_payment_id: pagamento.id,
-    p_usar_cashback: usarCashback,
-  });
-  if (erroSalvar) return { erro: erroSalvar.message };
-
-  return { sucesso: true as const, qrCode: pagamento.qrCode, qrCodeBase64: pagamento.qrCodeBase64 };
+  return { sucesso: true as const, preferenceId };
 }
 
 export async function verificarPagamentoTaxa(transacaoId: string) {
@@ -107,16 +91,15 @@ export async function verificarPagamentoTaxa(transacaoId: string) {
 
   const { data: transacao } = await supabase
     .from("transacoes")
-    .select("status_pagamento, mp_payment_id, usar_cashback_solicitado")
+    .select("status_pagamento, usar_cashback_solicitado")
     .eq("id", transacaoId)
     .single();
 
   if (!transacao) return { pago: false };
   if (transacao.status_pagamento === "pago") return { pago: true };
-  if (!transacao.mp_payment_id) return { pago: false };
 
-  const pagamento = await buscarPagamentoPix(transacao.mp_payment_id);
-  if (pagamento.status !== "approved") return { pago: false };
+  const pagamento = await buscarPagamentoPorReferencia(transacaoId);
+  if (!pagamento || pagamento.status !== "approved") return { pago: false };
 
   // confirma na hora caso o webhook ainda não tenha processado — chamada repetida é inofensiva
   const { error } = await supabase.rpc("confirmar_pagamento_taxa", {

@@ -745,6 +745,25 @@ export type Database = {
           vendedora_id: string
         }
       }
+      registrar_intencao_pagamento_taxa: {
+        Args: { p_transacao_id: string; p_usar_cashback: boolean }
+        Returns: {
+          cashback_utilizado: number
+          contato_liberado_em: string | null
+          criado_em: string
+          estornado_em: string | null
+          estornado_por: string | null
+          estorno_motivo: string | null
+          id: string
+          mp_payment_id: string | null
+          percentual_taxa: number
+          reserva_id: string
+          status_pagamento: string
+          usar_cashback_solicitado: boolean
+          valor_base: number
+          valor_taxa: number
+        }
+      }
     }
     Enums: {
       [_ in never]: never

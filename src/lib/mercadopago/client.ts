@@ -83,6 +83,63 @@ export async function buscarPagamentoPix(paymentId: string): Promise<PagamentoPi
   return parsePagamento(json);
 }
 
+export async function criarPreferenciaCheckout(params: {
+  valor: number;
+  descricao: string;
+  externalReference: string;
+  payerEmail: string;
+  notificationUrl: string;
+  backUrl: string;
+}): Promise<{ preferenceId: string }> {
+  const resposta = await fetch("https://api.mercadopago.com/checkout/preferences", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken()}`,
+    },
+    body: JSON.stringify({
+      items: [
+        {
+          title: params.descricao,
+          quantity: 1,
+          currency_id: "BRL",
+          unit_price: Math.round(params.valor * 100) / 100,
+        },
+      ],
+      external_reference: params.externalReference,
+      payer: { email: params.payerEmail },
+      notification_url: params.notificationUrl,
+      back_urls: {
+        success: params.backUrl,
+        failure: params.backUrl,
+        pending: params.backUrl,
+      },
+      auto_return: "approved",
+    }),
+  });
+
+  const json = await resposta.json();
+  if (!resposta.ok) {
+    throw new Error(`Mercado Pago recusou a preferência: ${json.message ?? resposta.statusText}`);
+  }
+  return { preferenceId: json.id };
+}
+
+export async function buscarPagamentoPorReferencia(externalReference: string): Promise<PagamentoPix | null> {
+  const resposta = await fetch(
+    `${BASE_URL}/search?external_reference=${encodeURIComponent(externalReference)}&sort=date_created&criteria=desc`,
+    { headers: { Authorization: `Bearer ${accessToken()}` } },
+  );
+
+  const json = await resposta.json();
+  if (!resposta.ok) {
+    throw new Error(`Não foi possível consultar o pagamento: ${json.message ?? resposta.statusText}`);
+  }
+
+  const resultados: RespostaMercadoPago[] = json.results ?? [];
+  return resultados.length > 0 ? parsePagamento(resultados[0]) : null;
+}
+
 export async function estornarPagamento(paymentId: string): Promise<void> {
   const resposta = await fetch(`${BASE_URL}/${paymentId}/refunds`, {
     method: "POST",

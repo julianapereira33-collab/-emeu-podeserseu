@@ -1,7 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState, useTransition } from "react";
+import { useMercadoPagoInit } from "@/lib/mercadopago/use-init";
 import { pagarTaxa, verificarPagamentoTaxa } from "./actions";
+
+const Wallet = dynamic(() => import("@mercadopago/sdk-react").then((m) => m.Wallet), { ssr: false });
 
 export function PagarBotao({
   transacaoId,
@@ -12,24 +16,29 @@ export function PagarBotao({
   valorTaxa: number;
   saldoCashback: number;
 }) {
+  useMercadoPagoInit();
+
   const [pending, startTransition] = useTransition();
   const [usarCashback, setUsarCashback] = useState(saldoCashback > 0);
   const [erro, setErro] = useState<string | null>(null);
-  const [cobranca, setCobranca] = useState<{ qrCode: string; qrCodeBase64: string } | null>(null);
-  const [copiado, setCopiado] = useState(false);
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [pago, setPago] = useState(false);
 
   useEffect(() => {
-    if (!cobranca) return;
+    if (!preferenceId || pago) return;
     const intervalo = setInterval(() => {
       startTransition(async () => {
         const resultado = await verificarPagamentoTaxa(transacaoId);
-        if (resultado.pago) clearInterval(intervalo);
+        if (resultado.pago) {
+          setPago(true);
+          clearInterval(intervalo);
+        }
       });
     }, 4000);
     return () => clearInterval(intervalo);
-  }, [cobranca, transacaoId]);
+  }, [preferenceId, pago, transacaoId]);
 
-  function gerarCobranca() {
+  function iniciarPagamento() {
     setErro(null);
     startTransition(async () => {
       const resultado = await pagarTaxa(transacaoId, usarCashback);
@@ -37,38 +46,27 @@ export function PagarBotao({
         setErro(resultado.erro);
         return;
       }
-      if ("qrCode" in resultado) {
-        setCobranca({ qrCode: resultado.qrCode, qrCodeBase64: resultado.qrCodeBase64 });
+      if ("pago" in resultado) {
+        setPago(true);
+        return;
       }
+      setPreferenceId(resultado.preferenceId);
     });
   }
 
-  async function copiar() {
-    if (!cobranca) return;
-    await navigator.clipboard.writeText(cobranca.qrCode);
-    setCopiado(true);
-    setTimeout(() => setCopiado(false), 2000);
+  if (pago) {
+    return <p className="text-xs text-green-700">Pagamento confirmado — contato liberado.</p>;
   }
 
-  if (cobranca) {
+  if (preferenceId) {
     return (
       <div className="flex flex-col items-start gap-2 rounded border border-gold bg-gold-light/20 p-3">
-        <p className="text-xs font-medium text-neutral-700">
-          Escaneie o QR code ou copie o código Pix no app do seu banco:
-        </p>
-        {/* base64 dinâmico vindo do Mercado Pago — next/image exige domínio configurado, img simples resolve */}
-        <img
-          src={`data:image/png;base64,${cobranca.qrCodeBase64}`}
-          alt="QR code Pix"
-          className="h-40 w-40"
+        <p className="text-xs font-medium text-neutral-700">Escolha como pagar (Pix, cartão ou boleto):</p>
+        <Wallet
+          initialization={{ preferenceId }}
+          customization={{ valueProp: "payment_methods_logos" }}
+          onError={(erroBrick) => setErro(erroBrick.message)}
         />
-        <button
-          type="button"
-          onClick={copiar}
-          className="rounded border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-50"
-        >
-          {copiado ? "Copiado!" : "Copiar código Pix"}
-        </button>
         <p className="text-xs text-neutral-500">
           Assim que o pagamento for confirmado, o contato é liberado automaticamente aqui.
         </p>
@@ -90,10 +88,10 @@ export function PagarBotao({
       )}
       <button
         disabled={pending}
-        onClick={gerarCobranca}
+        onClick={iniciarPagamento}
         className="w-fit rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
       >
-        {pending ? "Gerando cobrança..." : `Pagar taxa (R$ ${valorTaxa.toFixed(2)}) via Pix`}
+        {pending ? "Gerando cobrança..." : `Pagar taxa (R$ ${valorTaxa.toFixed(2)})`}
       </button>
       {erro && <p className="text-xs text-red-600">{erro}</p>}
     </div>
