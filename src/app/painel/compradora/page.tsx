@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
+import { formatarDataHora } from "@/lib/domain/datas";
 import { PagarBotao } from "./pagar-botao";
 import { AvaliarForm } from "./avaliar-form";
 import { CashbackSection } from "./cashback-section";
@@ -73,6 +74,13 @@ export default async function PainelCompradoraPage() {
             <li key={r.id} className="rounded border border-neutral-200 p-4 text-sm">
               <p className="font-medium">{peca?.descricao}</p>
               <p className="text-neutral-500">{STATUS_RESERVA_LABEL[r.status] ?? r.status}</p>
+
+              {r.status === "aguardando_confirmacao" && (
+                <p className="text-xs text-neutral-500">
+                  A vendedora tem até {formatarDataHora(r.prazo_confirmacao)} (horário de Brasília)
+                  para confirmar. Sem resposta até lá, a reserva é cancelada automaticamente.
+                </p>
+              )}
 
               {r.status === "confirmada" && transacao && transacao.status_pagamento === "pendente" && (
                 <div className="mt-2">

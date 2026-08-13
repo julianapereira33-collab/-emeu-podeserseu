@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { appOrigin } from "@/lib/app-url";
 import { redirect } from "next/navigation";
 
 export type CadastroState = { erro?: string };
@@ -31,7 +32,11 @@ export async function cadastrar(
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password: senha,
-    options: { data: { nome, whatsapp, cidade, papel } },
+    options: {
+      data: { nome, whatsapp, cidade, papel },
+      // o link do e-mail volta para /auth/confirm, que troca o token por sessão
+      emailRedirectTo: `${await appOrigin()}/auth/confirm?next=/auth/confirmado`,
+    },
   });
 
   if (signUpError || !signUpData.user) {

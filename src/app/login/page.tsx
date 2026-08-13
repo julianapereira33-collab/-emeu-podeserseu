@@ -8,15 +8,28 @@ import { entrar, type LoginState } from "./actions";
 
 const initialState: LoginState = {};
 
-function AvisoCadastro() {
+function Avisos() {
   const searchParams = useSearchParams();
-  if (searchParams.get("cadastrado") !== "1") return null;
 
-  return (
-    <p className="rounded border border-gold bg-gold-light/40 px-3 py-2 text-sm text-neutral-900">
-      Conta criada! Se a confirmação de e-mail estiver ativa no projeto, confirme antes de entrar.
-    </p>
-  );
+  if (searchParams.get("cadastrado") === "1") {
+    return (
+      <p className="rounded border border-gold bg-gold-light/40 px-3 py-2 text-sm text-neutral-900">
+        Conta criada! Enviamos um e-mail de confirmação para o seu endereço. Confirme para poder
+        entrar — se não achar, olhe também a caixa de spam.
+      </p>
+    );
+  }
+
+  if (searchParams.get("confirmacao") === "falhou") {
+    return (
+      <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        Esse link de e-mail já foi usado ou expirou. Entre com sua senha ou peça um novo link em
+        &quot;Esqueci minha senha&quot;.
+      </p>
+    );
+  }
+
+  return null;
 }
 
 export default function LoginPage() {
@@ -30,7 +43,7 @@ export default function LoginPage() {
       </div>
 
       <Suspense fallback={null}>
-        <AvisoCadastro />
+        <Avisos />
       </Suspense>
 
       <form action={formAction} className="flex flex-col gap-4">
@@ -52,6 +65,10 @@ export default function LoginPage() {
             className="rounded border border-neutral-300 px-3 py-2"
           />
         </label>
+
+        <Link href="/recuperar-senha" className="-mt-2 w-fit text-xs text-gold-dark underline">
+          Esqueci minha senha
+        </Link>
 
         {state.erro && <p className="text-sm text-red-600">{state.erro}</p>}
 

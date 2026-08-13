@@ -74,6 +74,13 @@ export function PagarBotao({
     );
   }
 
+  // mesmo cálculo que o servidor faz em `pagarTaxa` — o cashback abate a taxa até zerá-la
+  const cashbackAplicado =
+    usarCashback && saldoCashback > 0
+      ? Math.round(Math.min(saldoCashback, valorTaxa) * 100) / 100
+      : 0;
+  const valorAPagar = Math.max(0, Math.round((valorTaxa - cashbackAplicado) * 100) / 100);
+
   return (
     <div className="flex flex-col gap-1">
       {saldoCashback > 0 && (
@@ -86,12 +93,25 @@ export function PagarBotao({
           Usar cashback disponível (R$ {saldoCashback.toFixed(2)}) para abater a taxa
         </label>
       )}
+      {cashbackAplicado > 0 && (
+        <p className="text-xs text-neutral-600">
+          Taxa R$ {valorTaxa.toFixed(2)} − cashback R$ {cashbackAplicado.toFixed(2)} ={" "}
+          <strong>
+            você paga R$ {valorAPagar.toFixed(2)}
+            {valorAPagar === 0 ? " (nada)" : ""}
+          </strong>
+        </p>
+      )}
       <button
         disabled={pending}
         onClick={iniciarPagamento}
         className="w-fit rounded border border-gold bg-gold px-3 py-1.5 text-xs text-neutral-900 hover:bg-gold-dark hover:border-gold-dark disabled:opacity-50"
       >
-        {pending ? "Gerando cobrança..." : `Pagar taxa (R$ ${valorTaxa.toFixed(2)})`}
+        {pending
+          ? "Gerando cobrança..."
+          : valorAPagar === 0
+            ? "Liberar contato usando o cashback"
+            : `Pagar taxa (R$ ${valorAPagar.toFixed(2)})`}
       </button>
       {erro && <p className="text-xs text-red-600">{erro}</p>}
     </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { STATUS_PECA_LABEL, STATUS_RESERVA_LABEL } from "@/lib/domain/regras";
+import { formatarDataHora } from "@/lib/domain/datas";
 import { ReservaAcoes } from "./reserva-actions";
 import { AtendimentoSection } from "./atendimento-section";
 import { FotoEditorialWidget } from "./pecas/[id]/foto-editorial-widget";
@@ -103,7 +104,8 @@ export default async function PainelVendedoraPage() {
                     : `Reserva pelo valor anunciado: R$ ${r.pecas.preco_anunciado.toFixed(2)}`}
                 </p>
                 <p className="text-xs text-neutral-500">
-                  Prazo para responder: {new Date(r.prazo_confirmacao).toLocaleString("pt-BR")}
+                  Prazo para responder: {formatarDataHora(r.prazo_confirmacao)} (horário de
+                  Brasília)
                 </p>
               </div>
               <ReservaAcoes reservaId={r.id} />
