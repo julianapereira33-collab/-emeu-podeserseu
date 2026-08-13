@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { criarPreferenciaCheckout, buscarPagamentoPorReferencia } from "@/lib/mercadopago/client";
 
@@ -39,6 +40,9 @@ export async function pagarAtendimento(atendimentoId: string): Promise<Resultado
   } = await supabase.auth.getUser();
   if (!user?.email) return { erro: "Não foi possível identificar seu e-mail de cadastro." };
 
+  const usuario = await getCurrentUsuario();
+  if (!usuario) return { erro: "Sessão expirada." };
+
   const { data: atendimento, error: erroAtendimento } = await supabase
     .from("atendimentos_assistidos")
     .select("*")
@@ -46,6 +50,7 @@ export async function pagarAtendimento(atendimentoId: string): Promise<Resultado
     .single();
 
   if (erroAtendimento || !atendimento) return { erro: "Atendimento não encontrado." };
+  if (atendimento.usuario_id !== usuario.id) return { erro: "Atendimento não encontrado." };
   if (!atendimento.valor) return { erro: "A curadoria ainda não definiu o valor deste atendimento." };
   if (atendimento.status_pagamento !== "pendente") return { erro: "Pagamento já processado." };
 
@@ -69,20 +74,28 @@ export async function pagarAtendimento(atendimentoId: string): Promise<Resultado
 export async function verificarPagamentoAtendimento(atendimentoId: string) {
   const supabase = await createClient();
 
+  const usuario = await getCurrentUsuario();
+  if (!usuario) return { pago: false };
+
+  // leitura com o cliente de sessão (RLS ativa) + checagem explícita de dono
   const { data: atendimento } = await supabase
     .from("atendimentos_assistidos")
-    .select("status_pagamento")
+    .select("status_pagamento, usuario_id")
     .eq("id", atendimentoId)
     .single();
 
   if (!atendimento) return { pago: false };
+  if (atendimento.usuario_id !== usuario.id) return { pago: false };
   if (atendimento.status_pagamento === "pago") return { pago: true };
 
   const pagamento = await buscarPagamentoPorReferencia(atendimentoId);
   if (!pagamento || pagamento.status !== "approved") return { pago: false };
 
-  // confirma na hora caso o webhook ainda não tenha processado — chamada repetida é inofensiva
-  const { error } = await supabase.rpc("confirmar_pagamento_atendimento", {
+  // Confirma na hora caso o webhook ainda não tenha processado — chamada repetida é inofensiva.
+  // Só chega aqui depois de o Mercado Pago confirmar o pagamento como `approved`; a RPC roda
+  // com service role para permitir revogar o EXECUTE direto do papel `authenticated`.
+  const admin = createServiceRoleClient();
+  const { error } = await admin.rpc("confirmar_pagamento_atendimento", {
     p_atendimento_id: atendimentoId,
   });
   if (error && !error.message.includes("já processado")) return { pago: false };
