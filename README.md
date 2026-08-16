@@ -110,9 +110,15 @@ No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/
   `confirmar_pagamento_atendimento`, webhook único em `/api/webhooks/mercadopago` reconhece taxa e
   atendimento pelo `external_reference`). Testado de ponta a ponta em produção (dado sintético,
   limpo depois): geração de cobrança, confirmação e trava de pagamento duplicado, todos OK.
-- **Anti-fraude do cashback por compartilhamento**: a mitigação atual é só um throttle de 1 clique
-  contabilizado a cada 10 min por link (evita F5 repetido) — não há fingerprint de IP/dispositivo.
-  Suficiente para MVP, mas revisar antes de escalar o programa.
+- ~~**Anti-fraude do cashback por compartilhamento**: só havia throttle de 1 clique a cada 10 min por
+  link, sem fingerprint nenhum~~ — **reforçado em 15/08/2026**: geração de link agora é limitada a 1
+  por peça por usuária + 1 link geral (antes, cada clique no botão criava um link novo, sem limite —
+  dava pra gerar dezenas de links e abrir cada um uma vez via script, sem sessão, pra farmar cashback
+  instantaneamente). Cada clique também grava o hash do IP (nunca o IP cru), e o throttle passou a
+  considerar "mesmo IP já contou um clique pra essa usuária nas últimas 24h" — não só o mesmo link.
+  Trava adicional: no máximo 3 créditos de cashback (R$45) por dia por usuária nessa origem, mesmo que
+  as camadas anteriores sejam contornadas (ex.: várias redes/VPN). Ainda não há CAPTCHA nem análise de
+  comportamento — suficiente pra MVP, mas revisar de novo se o programa escalar.
 - **Auto-serviço de parceria**: hoje só o admin promove uma conta a parceira/embaixadora e vincula
   lojas recrutadas (via WhatsApp, em `/painel/admin`). Não há fluxo de auto-cadastro de embaixadora
   nem de uma loja se "vincular" sozinha a uma embaixadora.

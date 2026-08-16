@@ -166,16 +166,19 @@ export type Database = {
           compartilhamento_id: string
           criado_em: string
           id: string
+          ip_hash: string | null
         }
         Insert: {
           compartilhamento_id: string
           criado_em?: string
           id?: string
+          ip_hash?: string | null
         }
         Update: {
           compartilhamento_id?: string
           criado_em?: string
           id?: string
+          ip_hash?: string | null
         }
         Relationships: [
           {

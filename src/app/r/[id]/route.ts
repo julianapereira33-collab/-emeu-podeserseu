@@ -1,5 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
+
+// Não precisa ser segredo — só evita que o hash seja revertido por rainbow table
+// trivial do espaço de IPv4. A dona do link só enxerga o hash, nunca o IP.
+const PEPPER = "emeu-podeserseu-cliques-v1";
+
+function hashIp(ip: string) {
+  return createHash("sha256").update(`${PEPPER}:${ip}`).digest("hex");
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,9 +24,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const response = NextResponse.redirect(new URL(destino, request.url));
 
   if (compartilhamento) {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+
     // Registra o clique real — é isso que conta para cashback/comissão,
     // não o simples ato de compartilhar o link.
-    await supabase.from("cliques_compartilhamento").insert({ compartilhamento_id: id });
+    await supabase.from("cliques_compartilhamento").insert({
+      compartilhamento_id: id,
+      ip_hash: ip ? hashIp(ip) : null,
+    });
 
     // Guarda a origem por 30 dias para atribuir a próxima reserva desta
     // visitante a quem compartilhou o link (cashback da compradora não
