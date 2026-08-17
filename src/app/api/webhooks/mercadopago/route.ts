@@ -39,6 +39,14 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (transacao) {
+    // grava o payment id real assim que confirmado pela API do MP — é o que o estorno
+    // do admin usa pra saber o que reembolsar. Desde a migração pro Checkout Pro
+    // (Wallet Brick), nada mais gravava isso e ficava sempre NULL.
+    await supabase
+      .from("transacoes")
+      .update({ mp_payment_id: paymentId })
+      .eq("id", pagamento.externalReference);
+
     if (transacao.status_pagamento === "pago") {
       return NextResponse.json({ ok: true }, { status: 200 });
     }
@@ -61,13 +69,20 @@ export async function POST(request: NextRequest) {
     .eq("id", pagamento.externalReference)
     .maybeSingle();
 
-  if (atendimento && atendimento.status_pagamento !== "pago") {
-    const { error } = await supabase.rpc("confirmar_pagamento_atendimento", {
-      p_atendimento_id: pagamento.externalReference,
-    });
-    if (error && !error.message.includes("já processado")) {
-      console.error("Erro ao confirmar pagamento de atendimento via webhook Mercado Pago:", error.message);
-      return NextResponse.json({ ok: false }, { status: 500 });
+  if (atendimento) {
+    await supabase
+      .from("atendimentos_assistidos")
+      .update({ mp_payment_id: paymentId })
+      .eq("id", pagamento.externalReference);
+
+    if (atendimento.status_pagamento !== "pago") {
+      const { error } = await supabase.rpc("confirmar_pagamento_atendimento", {
+        p_atendimento_id: pagamento.externalReference,
+      });
+      if (error && !error.message.includes("já processado")) {
+        console.error("Erro ao confirmar pagamento de atendimento via webhook Mercado Pago:", error.message);
+        return NextResponse.json({ ok: false }, { status: 500 });
+      }
     }
   }
 

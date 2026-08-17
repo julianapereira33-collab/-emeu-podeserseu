@@ -128,9 +128,12 @@ chama agora). Confirmado com teste de bypass antes e depois da correção.
   Trava adicional: no máximo 3 créditos de cashback (R$45) por dia por usuária nessa origem, mesmo que
   as camadas anteriores sejam contornadas (ex.: várias redes/VPN). Ainda não há CAPTCHA nem análise de
   comportamento — suficiente pra MVP, mas revisar de novo se o programa escalar.
-- **Auto-serviço de parceria**: hoje só o admin promove uma conta a parceira/embaixadora e vincula
-  lojas recrutadas (via WhatsApp, em `/painel/admin`). Não há fluxo de auto-cadastro de embaixadora
-  nem de uma loja se "vincular" sozinha a uma embaixadora.
+- **Auto-serviço de parceria**: ~~hoje só o admin promove uma conta a parceira~~ — **correção
+  (16/08/2026): isso está errado, o cadastro já tem "Parceira (divulgo peças por comissão)" como
+  opção direta desde sempre** (`/cadastro`), confirmado como intencional. O que de fato só o admin
+  faz é promover a **embaixadora** e vincular lojas recrutadas a ela (via WhatsApp, em
+  `/painel/admin`) — não há fluxo de auto-cadastro de embaixadora nem de uma loja se "vincular"
+  sozinha a uma embaixadora.
 
 ## Learn More
 
