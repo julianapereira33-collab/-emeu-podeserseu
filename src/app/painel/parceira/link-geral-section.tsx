@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { gerarLinkCompartilhamento } from "@/app/painel/compradora/compartilhar-actions";
+import { LinkCompartilhavel } from "@/components/link-compartilhavel";
 
 export function LinkGeralSection() {
   const [pending, startTransition] = useTransition();
@@ -26,11 +27,7 @@ export function LinkGeralSection() {
       >
         Gerar link geral
       </button>
-      {link && (
-        <p className="mt-2 break-all rounded bg-neutral-50 px-2 py-1 text-xs text-neutral-700">
-          {link}
-        </p>
-      )}
+      {link && <LinkCompartilhavel link={link} />}
     </section>
   );
 }

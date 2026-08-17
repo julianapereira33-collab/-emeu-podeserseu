@@ -107,28 +107,13 @@ export default async function PainelCompradoraPage() {
                     <div className="flex flex-col gap-2 rounded border border-dashed border-neutral-300 p-3">
                       <p className="text-xs font-medium text-neutral-600">Avaliar esta transação</p>
                       {!jaAvaliou(transacao.id, "peca") && (
-                        <AvaliarForm
-                          transacaoId={transacao.id}
-                          tipoAlvo="peca"
-                          avaliadoId={null}
-                          label="Peça"
-                        />
+                        <AvaliarForm transacaoId={transacao.id} tipoAlvo="peca" label="Peça" />
                       )}
                       {!ehAluguel && !jaAvaliou(transacao.id, "vendedora") && (
-                        <AvaliarForm
-                          transacaoId={transacao.id}
-                          tipoAlvo="vendedora"
-                          avaliadoId={peca?.dono_id ?? null}
-                          label="Vendedora"
-                        />
+                        <AvaliarForm transacaoId={transacao.id} tipoAlvo="vendedora" label="Vendedora" />
                       )}
                       {ehAluguel && !jaAvaliou(transacao.id, "locadora") && (
-                        <AvaliarForm
-                          transacaoId={transacao.id}
-                          tipoAlvo="locadora"
-                          avaliadoId={peca?.dono_id ?? null}
-                          label="Locadora"
-                        />
+                        <AvaliarForm transacaoId={transacao.id} tipoAlvo="locadora" label="Locadora" />
                       )}
                     </div>
                   )}

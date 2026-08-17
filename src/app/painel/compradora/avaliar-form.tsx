@@ -8,15 +8,13 @@ const initialState: AvaliarState = {};
 export function AvaliarForm({
   transacaoId,
   tipoAlvo,
-  avaliadoId,
   label,
 }: {
   transacaoId: string;
   tipoAlvo: "peca" | "vendedora" | "locadora";
-  avaliadoId: string | null;
   label: string;
 }) {
-  const action = avaliar.bind(null, { transacaoId, tipoAlvo, avaliadoId });
+  const action = avaliar.bind(null, { transacaoId, tipoAlvo });
   const [state, formAction, pending] = useActionState(action, initialState);
 
   if (state.sucesso) {

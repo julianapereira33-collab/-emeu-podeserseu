@@ -5,6 +5,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
 import { revalidatePath } from "next/cache";
 import { gerarFotoEditorialBase64 } from "@/lib/openai/client";
+import { ehUrlDoBucketPecasFotos } from "@/lib/supabase/storage-url";
 import type { Tables } from "@/types/database";
 
 async function podeEditar(
@@ -36,6 +37,9 @@ export async function gerarFotoEditorial(pecaId: string): Promise<{ url: string 
 
   const fotoBase = peca.fotos_tratadas[0] ?? peca.fotos_originais[0];
   if (!fotoBase) return { erro: "Cadastre pelo menos uma foto antes de gerar a versão editorial." };
+  // segunda camada: mesmo que uma URL inválida tenha entrado por outro caminho, nunca
+  // buscar um endereço fora do bucket de fotos (evita SSRF).
+  if (!ehUrlDoBucketPecasFotos(fotoBase)) return { erro: "Foto da peça inválida." };
 
   try {
     const base64 = await gerarFotoEditorialBase64(fotoBase, peca.descricao);

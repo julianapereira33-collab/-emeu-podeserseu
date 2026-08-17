@@ -10,6 +10,16 @@ function hashIp(ip: string) {
   return createHash("sha256").update(`${PEPPER}:${ip}`).digest("hex");
 }
 
+// Robôs de preview (WhatsApp, Facebook, Telegram etc.) buscam esta URL pra montar a
+// prévia do link quando alguém cola no grupo — isso não é um acesso real de alguém
+// interessado na peça, e não pode contar como clique de cashback/comissão.
+const BOT_DE_PREVIEW =
+  /whatsapp|facebookexternalhit|telegrambot|slackbot|discordbot|twitterbot|linkedinbot|bot|crawler|spider|preview/i;
+
+function ehBotDePreview(userAgent: string | null) {
+  return Boolean(userAgent && BOT_DE_PREVIEW.test(userAgent));
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -23,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const destino = compartilhamento?.peca_id ? `/pecas/${compartilhamento.peca_id}` : "/vitrine";
   const response = NextResponse.redirect(new URL(destino, request.url));
 
-  if (compartilhamento) {
+  if (compartilhamento && !ehBotDePreview(request.headers.get("user-agent"))) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
 
     // Registra o clique real — é isso que conta para cashback/comissão,

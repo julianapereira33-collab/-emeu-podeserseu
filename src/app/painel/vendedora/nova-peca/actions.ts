@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
+import { ehUrlDoBucketPecasFotos } from "@/lib/supabase/storage-url";
 import { redirect } from "next/navigation";
 
 export type NovaPecaState = { erro?: string };
@@ -44,6 +45,12 @@ export async function cadastrarPeca(
   if (!videoUrl) {
     return { erro: "Envie um vídeo mostrando o estado real da peça." };
   }
+  const urlsInvalidas = [...fotosOriginais, ...fotosTratadas, videoUrl].some(
+    (url) => !ehUrlDoBucketPecasFotos(url),
+  );
+  if (urlsInvalidas) {
+    return { erro: "Foto ou vídeo inválido — envie os arquivos pelo formulário, sem editar o link." };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.from("pecas").insert({
@@ -77,6 +84,9 @@ export async function sugerirPreco(input: {
   tecido: string;
   estado: string;
 }): Promise<{ sugestao?: string; erro?: string }> {
+  const usuario = await getCurrentUsuario();
+  if (!usuario) return { erro: "Sessão expirada, entre novamente." };
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return { erro: "Sugestão de preço por IA não configurada (ANTHROPIC_API_KEY ausente)." };

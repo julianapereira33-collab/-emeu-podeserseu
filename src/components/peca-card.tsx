@@ -16,6 +16,9 @@ export function PecaCard({
     peca.fotos_tratadas[0] ||
     peca.fotos_originais[0];
   const vendida = peca.status === "vendido";
+  // componente de servidor, renderizado uma vez por request — Date.now() aqui é
+  // determinístico na prática, só a regra de pureza do React não distingue isso.
+  // eslint-disable-next-line react-hooks/purity
   const diasDesdeCadastro = (Date.now() - new Date(peca.criado_em).getTime()) / (1000 * 60 * 60 * 24);
   const ehNova = !vendida && peca.status === "aprovado" && diasDesdeCadastro <= 7;
 

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { gerarLinkCompartilhamento } from "@/app/painel/compradora/compartilhar-actions";
+import { LinkCompartilhavel } from "@/components/link-compartilhavel";
 
 export function CompartilharBotao({ pecaId }: { pecaId: string }) {
   const [pending, startTransition] = useTransition();
@@ -21,7 +22,7 @@ export function CompartilharBotao({ pecaId }: { pecaId: string }) {
       >
         Compartilhar esta peça e ganhar cashback
       </button>
-      {link && <p className="mt-1 break-all rounded bg-neutral-50 px-2 py-1">{link}</p>}
+      {link && <LinkCompartilhavel link={link} />}
     </div>
   );
 }

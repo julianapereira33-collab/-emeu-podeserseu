@@ -1,12 +1,56 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUsuario } from "@/lib/supabase/current-usuario";
+import { appOrigin } from "@/lib/app-url";
 import { ReservarForm } from "./reservar-form";
 import { CompartilharBotao } from "./compartilhar-botao";
 import { FotoGaleria } from "./foto-galeria";
 import { FavoritoBotao } from "./favorito-botao";
 import { DisponibilidadeCalendario } from "./disponibilidade-calendario";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: peca } = await supabase
+    .from("pecas")
+    .select("descricao, preco_anunciado, tipo, fotos_tratadas, fotos_originais")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!peca) return {};
+
+  const origin = await appOrigin();
+  const fotos = peca.fotos_tratadas.length ? peca.fotos_tratadas : peca.fotos_originais;
+  const preco = peca.preco_anunciado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const titulo = `${peca.descricao} — ${preco}`;
+  const descricao =
+    peca.tipo === "aluguel"
+      ? "Disponível para aluguel em É meu, pode ser seu."
+      : "Disponível para venda em É meu, pode ser seu.";
+
+  return {
+    title: titulo,
+    description: descricao,
+    openGraph: {
+      title: titulo,
+      description: descricao,
+      url: `${origin}/pecas/${id}`,
+      images: fotos[0] ? [{ url: fotos[0] }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: titulo,
+      description: descricao,
+      images: fotos[0] ? [fotos[0]] : undefined,
+    },
+  };
+}
 
 export default async function PecaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -64,6 +108,16 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
         <h1 className="text-xl font-semibold">{peca.descricao}</h1>
         <p className="text-2xl font-semibold">
           {peca.preco_anunciado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        </p>
+        <p className="text-xs text-neutral-500">
+          {peca.venda_assistida
+            ? "+ taxa de intermediação de 60% do valor fechado (venda assistida), "
+            : "+ taxa de intermediação de até 30% do valor fechado, "}
+          cobrada da compradora ao confirmar a reserva. O valor da peça em si é combinado direto com
+          a vendedora — nunca passa pela plataforma.{" "}
+          <Link href="/como-funciona" className="underline">
+            Como funciona
+          </Link>
         </p>
         {mediaDona !== null && (
           <p className="text-xs text-neutral-500">
@@ -130,9 +184,12 @@ export default async function PecaPage({ params }: { params: Promise<{ id: strin
             Esta peça não está mais disponível na vitrine no momento.
           </p>
         ) : ehDona ? (
-          <p className="rounded bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
-            Esta é uma das suas peças — acompanhe as reservas no seu painel.
-          </p>
+          <>
+            <p className="rounded bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
+              Esta é uma das suas peças — acompanhe as reservas no seu painel.
+            </p>
+            <CompartilharBotao pecaId={peca.id} />
+          </>
         ) : usuario ? (
           <>
             <ReservarForm

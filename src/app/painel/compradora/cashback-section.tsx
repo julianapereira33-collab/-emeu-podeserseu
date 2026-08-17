@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { gerarLinkCompartilhamento } from "./compartilhar-actions";
+import { LinkCompartilhavel } from "@/components/link-compartilhavel";
 
 export function CashbackSection({ saldo }: { saldo: number }) {
   const [pending, startTransition] = useTransition();
@@ -31,11 +32,7 @@ export function CashbackSection({ saldo }: { saldo: number }) {
         Gerar link para compartilhar (a cada 5 cliques reais, R$ 15 de cashback)
       </button>
 
-      {link && (
-        <p className="mt-2 break-all rounded bg-neutral-50 px-2 py-1 text-xs text-neutral-700">
-          {link}
-        </p>
-      )}
+      {link && <LinkCompartilhavel link={link} />}
     </section>
   );
 }

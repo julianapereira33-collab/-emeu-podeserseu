@@ -30,15 +30,18 @@ export async function Nav() {
           <span className={`${marca.className} text-lg tracking-wide`}>É meu, pode ser seu</span>
         </Link>
 
-        <div className="flex items-center gap-4 text-sm text-white">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white sm:gap-4">
           <Link href="/vitrine" className="hover:text-gold">
             Vitrine
+          </Link>
+          <Link href="/como-funciona" className="hover:text-gold">
+            Como funciona
           </Link>
           <Link href="/quem-somos" className="hidden hover:text-gold sm:inline">
             Quem somos
           </Link>
-          <Link href="/como-funciona" className="hidden hover:text-gold sm:inline">
-            Como funciona
+          <Link href="/termos" className="hidden hover:text-gold sm:inline">
+            Termos
           </Link>
 
           {usuario ? (
