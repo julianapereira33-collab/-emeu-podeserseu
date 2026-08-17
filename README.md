@@ -88,6 +88,15 @@ Variáveis necessárias (ver `.env.local`):
 
 No painel do Mercado Pago, cadastre a notification URL: `https://<seu-domínio>/api/webhooks/mercadopago`.
 
+## Correção de segurança (16/08/2026)
+
+Três funções (`iniciar_pagamento_pix`, `iniciar_pagamento_pix_atendimento`,
+`registrar_intencao_pagamento_taxa`) checavam dono da transação com `<>` em vez de `IS DISTINCT FROM`
+e estavam liberadas pro papel `anon` — visitante sem login conseguia sobrescrever `mp_payment_id`
+(usado pelo estorno do admin) e `usar_cashback_solicitado` de transação alheia. Corrigido no banco:
+comparação trocada por `IS DISTINCT FROM` nas três, e `EXECUTE` revogado de `anon` (só `authenticated`
+chama agora). Confirmado com teste de bypass antes e depois da correção.
+
 ## O que ainda é simulado / falta para produção
 
 - **Notificação de reserva pendente**: **implementada e ativa em produção**, cobrindo os 3 pontos do
